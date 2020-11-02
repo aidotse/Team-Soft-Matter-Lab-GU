@@ -10,6 +10,5 @@
     ],
     "python.linting.flake8Args": [
         "--ignore=E501,W503,E203"
-    ],
-    "python.pythonPath": "C:\\Users\\bmidt\\anaconda3\\python.exe"
+    ]
 }

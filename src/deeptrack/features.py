@@ -21,6 +21,7 @@ Duplicate
 """
 
 import copy
+import enum
 
 from typing import List
 import numpy as np
@@ -336,20 +337,27 @@ class Feature:
 
         if self.__distributed__:
             # Call get on each image in list, and merge properties from corresponding image
-            return [
-                Image(self.get(image, **feature_input)).merge_properties_from(
-                    image
-                )
-                for image in image_list
-            ]
+
+            results = []
+
+            for image in image_list:
+                output = self.get(image, **feature_input)
+                if not isinstance(output, Image):
+                    output = Image(output)
+                results.append(output)
+
+            return results
+
         else:
             # Call get on entire list.
             new_list = self.get(image_list, **feature_input)
 
             if not isinstance(new_list, list):
-                new_list = [Image(new_list)]
+                new_list = [new_list]
 
-            new_list = [Image(image) for image in new_list]
+            for idx, image in enumerate(new_list):
+                if not isinstance(image, Image):
+                    new_list[idx] = Image(image)
             return new_list
 
     def _format_input(self, image_list, **kwargs) -> List[Image]:
@@ -361,7 +369,11 @@ class Feature:
         if not isinstance(image_list, list):
             image_list = [image_list]
 
-        return [Image(image) for image in image_list]
+        for idx, image in enumerate(image_list):
+            if not isinstance(image, Image):
+                image_list[idx] = Image(image)
+
+        return image_list
 
     def _process_properties(self, propertydict) -> dict:
         # Optional hook for subclasses to preprocess input before calling

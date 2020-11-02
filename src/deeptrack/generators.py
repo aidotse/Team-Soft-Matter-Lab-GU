@@ -329,10 +329,10 @@ class ContinuousGenerator(keras.utils.Sequence):
             new_image = self._get(self.feature, self.feature_kwargs)
 
             if self.label_function:
-                new_label = Image(self.label_function(new_image))
+                new_label = self.label_function(new_image)
 
             if self.batch_function:
-                new_image = Image(self.batch_function(new_image))
+                new_image = self.batch_function(new_image)
 
             if new_image.ndim < self.ndim:
                 new_image = [new_image]
