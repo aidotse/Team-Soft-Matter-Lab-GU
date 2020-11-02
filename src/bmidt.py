@@ -7,7 +7,8 @@ from tensorflow.keras import layers
 TEST_VARIABLES = {
     "generator_depth": [3, 4, 5],
     "generator_base_breadth": [16, 32, 48],
-    "batch_size": [4, 8, 16],
+    "batch_size": [2],
+    "min_data_size": [100],
 }
 
 
@@ -27,7 +28,7 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
     )
 
     generator = dt.models.unet(
-        input_shape=(None, None, 1),  # shape of the input
+        input_shape=(None, None, 7),  # shape of the input
         conv_layers_dimensions=list(
             generator_base_breadth * 2 ** n for n in range(generator_depth - 1)
         ),  # number of features in each convolutional layer
@@ -39,7 +40,7 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
             generator_base_breadth,
         ),  # number of features in convolutional layer after the U-net
         steps_per_pooling=2,  # 2                                 # number of convolutional layers per pooling layer
-        number_of_outputs=1,  # number of output features
+        number_of_outputs=3,  # number of output features
         output_activation="tanh",  # activation function on final layer
         compile=False,
         output_kernel_size=1,
@@ -65,8 +66,7 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
     discriminator_pooling_block = lambda f: (lambda x: x)
 
     discriminator = dt.models.convolutional(
-        input_shape=(256, 256, 1),  # shape of the input
-        aux_input_shape=(256, 256, 1),
+        input_shape=[(256, 256, 3), (256, 256, 7)],  # shape of the input
         conv_layers_dimensions=(
             16,
             32,

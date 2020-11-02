@@ -19,8 +19,8 @@ opts, args = getopt.getopt(sys.argv[2:], "i:e:p:n:")
 script = sys.argv[1]
 # Defaults
 args = {
-    "epochs": 100,
-    "patience": 10,
+    "epochs": 100000,
+    "patience": 100,
 }
 
 username = getpass.getuser()
@@ -103,6 +103,7 @@ for index in indices:
         "Starting training. Model is saved to: {0}.h5".format(checkpoint_name)
     )
     with generator:
+        batch = generator[0]
         h = model.fit(
             generator,
             epochs=args["epochs"],

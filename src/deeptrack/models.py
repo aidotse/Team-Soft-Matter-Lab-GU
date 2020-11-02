@@ -225,18 +225,18 @@ def Convolutional(
     convolution_block = as_block(convolution_block)
     pooling_block = as_block(pooling_block)
 
-    # INITIALIZE DEEP LEARNING NETWORK
+    ### INITIALIZE DEEP LEARNING NETWORK
 
     if isinstance(input_shape, list):
-        inputs = [layers.Input(shape for shape in input_shape)]
-        inputs = layers.Concatenate(axis=-1)(inputs)
+        network_input = [layers.Input(shape) for shape in input_shape]
+        inputs = layers.Concatenate(axis=-1)(network_input)
     else:
         network_input = layers.Input(input_shape)
         inputs = network_input
 
     layer = inputs
 
-    # CONVOLUTIONAL BASIS
+    ### CONVOLUTIONAL BASIS
     for conv_layer_dimension in conv_layers_dimensions:
 
         for _ in range(steps_per_pooling):
@@ -268,7 +268,7 @@ def Convolutional(
             name="output",
         )(layer)
 
-    model = models.Model(inputs, output_layer)
+    model = models.Model(network_input, output_layer)
 
     return KerasModel(model, loss=loss, **kwargs)
 
