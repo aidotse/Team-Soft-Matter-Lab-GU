@@ -25,10 +25,6 @@ default_augmentation_list = {
         },
         "mode": "reflect",
     },
-    "Crop": {
-        "crop": (256, 256, 7),
-        "corner": lambda: (*np.random.randint(0, 10000, size=2), 0),
-    },
 }
 
 
@@ -63,11 +59,9 @@ def DataLoader(
 
     # Define path to the dataset
     path_to_dataset = path + magnification + " images/"
-    input_root = path_to_dataset + "input/"
-    label_root = path_to_dataset + "targets/"
-
+    print(path_to_dataset)
     # Number of input files
-    input_files = glob.glob(input_root + "*")
+    input_files = glob.glob(path_to_dataset + "*.tif")
 
     # Compute well coordinates
     wells = list(
@@ -92,7 +86,7 @@ def DataLoader(
         )
     )
 
-    split = (len(site_config) * training_split) // 1
+    split = int((len(site_config) * training_split))
 
     if seed:
         random.seed(seed)
@@ -123,7 +117,7 @@ def DataLoader(
     bf = root + dt.LoadImage(
         path=lambda index_well, index_site, index_z_slide: [
             load_string_struct.format(
-                input_root, index_well, index_site, 4, z_slide
+                path_to_dataset, index_well, index_site, 4, z_slide
             )
             for z_slide in index_z_slide
         ],
@@ -132,7 +126,7 @@ def DataLoader(
     fl = root + dt.LoadImage(
         path=lambda index_well, index_site, index_action_list_number: [
             load_string_struct.format(
-                label_root, index_well, index_site, action_number, 1
+                path_to_dataset, index_well, index_site, action_number, 1
             )
             for action_number in index_action_list_number
         ],
@@ -145,6 +139,13 @@ def DataLoader(
         augmented_dataset = Augmentation(dataset)
     else:
         augmented_dataset = dataset
+
+    augmented_dataset = dt.PreLoad(dataset, updates_per_reload=16)
+
+    augmented_dataset += dt.Crop(
+        crop=(256, 256, 7),
+        corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
+    )
 
     return dt.ConditionalSetFeature(
         on_true=dataset,

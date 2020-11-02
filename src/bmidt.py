@@ -110,7 +110,9 @@ for prod in itertools.product(*TEST_VARIABLES.values()):
     _generators.append(
         (
             arguments,
-            lambda: apido.get_generator(**arguments),
+            lambda: apido.get_generator(
+                root_path="D:/hackathon/", **arguments
+            ),
         )
     )
 

@@ -5,10 +5,7 @@ import apido
 
 _VALIDATION_SET_SIZE = 8
 
-
-def feature(augmentation_dict={}) -> dt.Feature:
-    pipeline = apido.DataLoader(augmentation=augmentation_dict, seed=0)
-    return pipeline
+conf = {}
 
 
 def batch_function(image: dt.Image or List[dt.Image]) -> dt.Image:
@@ -19,10 +16,21 @@ def label_function(image: dt.Image or List[dt.Image]) -> dt.Image:
     return image[1]
 
 
-def get_generator(min_data_size=1000, max_data_size=2000, **kwargs):
-
+def get_generator(
+    min_data_size=1000,
+    max_data_size=2000,
+    augmentation_dict={},
+    seed=None,
+    root_path=".",
+    **kwargs
+):
+    conf["root_path"] = root_path
     args = {
-        "feature": feature(),
+        "feature": apido.DataLoader(
+            augmentation=augmentation_dict,
+            seed=seed,
+            path=root_path,
+        ),
         "label_function": label_function,
         "min_data_size": min_data_size,
         "max_data_size": max_data_size,
@@ -32,7 +40,7 @@ def get_generator(min_data_size=1000, max_data_size=2000, **kwargs):
 
 
 def get_validation_set(size=_VALIDATION_SET_SIZE):
-    data_loader = feature()
+    data_loader = apido.DataLoader(path=conf["root_path"])
 
     data = []
     labels = []
