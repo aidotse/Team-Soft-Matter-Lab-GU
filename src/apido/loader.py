@@ -114,41 +114,55 @@ def DataLoader(
         ),
     )
 
-    bf = root + dt.LoadImage(
-        path=lambda index_well, index_site, index_z_slide: [
-            load_string_struct.format(
-                path_to_dataset, index_well, index_site, 4, z_slide
-            )
-            for z_slide in index_z_slide
-        ],
-        **root.properties,
-    )
-    fl = root + dt.LoadImage(
-        path=lambda index_well, index_site, index_action_list_number: [
-            load_string_struct.format(
-                path_to_dataset, index_well, index_site, action_number, 1
-            )
-            for action_number in index_action_list_number
-        ],
-        **root.properties,
+    bf = (
+        root
+        + dt.LoadImage(
+            path=lambda index_well, index_site, index_z_slide: [
+                load_string_struct.format(
+                    path_to_dataset, index_well, index_site, 4, z_slide
+                )
+                for z_slide in index_z_slide
+            ],
+            **root.properties,
+        )
+        + dt.Lambda(lambda: lambda image: image / 127.5 - 1)
     )
 
-    dataset = dt.Combine([bf, fl]) + dt.CropToMultiplesOf(multiple=32)
+    fl = (
+        root
+        + dt.LoadImage(
+            path=lambda index_well, index_site, index_action_list_number: [
+                load_string_struct.format(
+                    path_to_dataset, index_well, index_site, action_number, 1
+                )
+                for action_number in index_action_list_number
+            ],
+            **root.properties,
+        )
+        + dt.Lambda(lambda: lambda image: image / 127.5 - 1)
+    )
+
+    dataset = dt.Combine([bf, fl])
+
+    validation_dataset = dataset + dt.Crop(
+        crop=(256, 256, 7),
+        corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
+    )
 
     if augmentation:
         augmented_dataset = Augmentation(dataset)
     else:
         augmented_dataset = dataset
 
-    augmented_dataset = dt.PreLoad(dataset, updates_per_reload=16)
-
-    augmented_dataset += dt.Crop(
+    augmented_dataset = dt.Crop(
+        augmented_dataset,
+        updates_per_reload=16,
         crop=(256, 256, 7),
         corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
     )
 
     return dt.ConditionalSetFeature(
-        on_true=dataset,
+        on_true=validation_dataset,
         on_false=augmented_dataset,
         condition="is_validation",
         is_validation=lambda validation: validation,

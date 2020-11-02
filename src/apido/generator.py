@@ -27,11 +27,12 @@ def get_generator(
     conf["root_path"] = root_path
     args = {
         "feature": apido.DataLoader(
-            augmentation=augmentation_dict,
+            # augmentation=augmentation_dict,
             seed=seed,
             path=root_path,
         ),
         "label_function": label_function,
+        "batch_function": batch_function,
         "min_data_size": min_data_size,
         "max_data_size": max_data_size,
         **kwargs,
@@ -45,7 +46,7 @@ def get_validation_set(size=_VALIDATION_SET_SIZE):
     data = []
     labels = []
     for _ in range(size):
-        data_loader.update(is_valdidation=True)
+        data_loader.update(validation=True, is_validation=True)
         output = data_loader.resolve()
         data.append(batch_function(output))
         labels.append(label_function(output))

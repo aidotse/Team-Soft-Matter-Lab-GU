@@ -122,6 +122,7 @@ class Augmentation(Feature):
             or kwargs["update_tally"] - self.last_update
             >= kwargs["updates_per_reload"]
         ):
+
             if isinstance(self.feature, list):
                 self.cache = [feature.resolve() for feature in self.feature]
             else:
@@ -158,10 +159,16 @@ class Augmentation(Feature):
                     ]
                 )
             else:
+                # DANGEROUS
+                if not isinstance(image_list, Image):
+                    image_list = Image(image_list)
+
+                output = self.get(image_list, **kwargs)
+
+                if not isinstance(output, Image):
+                    output = Image(output)
                 new_list_of_lists.append(
-                    Image(
-                        self.get(Image(image_list), **kwargs)
-                    ).merge_properties_from(image_list)
+                    output.merge_properties_from(image_list)
                 )
 
         if update_properties:

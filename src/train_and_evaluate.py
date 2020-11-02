@@ -103,6 +103,7 @@ for index in indices:
         "Starting training. Model is saved to: {0}.h5".format(checkpoint_name)
     )
     with generator:
+        batch = generator[0]
         h = model.fit(
             generator,
             epochs=args["epochs"],
