@@ -7,7 +7,7 @@ from tensorflow.keras import layers
 TEST_VARIABLES = {
     "generator_depth": [3, 4, 5],
     "generator_base_breadth": [16, 32, 48],
-    "NA": [0.7, 0.5],
+    "batch_size": [4, 8, 16],
 }
 
 
@@ -110,9 +110,7 @@ for prod in itertools.product(*TEST_VARIABLES.values()):
     _generators.append(
         (
             arguments,
-            lambda: apido.get_generator(
-                min_data_size=100, max_data_size=1000, batch_size=8
-            ),
+            lambda: apido.get_generator(**arguments),
         )
     )
 

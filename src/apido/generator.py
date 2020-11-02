@@ -1,31 +1,13 @@
 import numpy as np
 from typing import List
 import deeptrack as dt
+import apido
 
 _VALIDATION_SET_SIZE = 8
 
 
-def feature() -> dt.Feature:
-    fluorescence = dt.Fluorescence(
-        magnification=5, output_region=(0, 0, 256, 256)
-    )
-
-    particles = dt.Ellipsoid(
-        radius=lambda: np.random.rand(3) * 0.5e-6 + 0.5e-6,
-        rotation=lambda: np.random.rand(3) * 2 * np.pi,
-        position=lambda: np.random.rand(2) * 256,
-        z=lambda: np.random.randn() * 15,
-    )
-
-    image_feature = fluorescence(
-        particles ** (lambda: np.random.randint(5, 20))
-    )
-
-    label_feature = dt.Bind(image_feature, z=0)
-
-    pipeline = dt.Combine([image_feature, label_feature])
-    pipeline += dt.NormalizeMinMax(-1, 1)
-
+def feature(augmentation_dict={}) -> dt.Feature:
+    pipeline = apido.DataLoader(augmentation=augmentation_dict, seed=0)
     return pipeline
 
 
