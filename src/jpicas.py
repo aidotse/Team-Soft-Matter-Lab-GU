@@ -9,8 +9,8 @@ TEST_VARIABLES = {
     "generator_depth": [4, 5],
     "generator_base_breadth": [16],
     "assemble_loss_weights": [0.8, 4, 10],
-    #"alpha": [0.1, 0.2, 0.5],
-    "alpha" : [0.2]
+    # "alpha": [0.1, 0.2, 0.5],
+    "alpha": [0.2],
     "min_data_size": [256],
     "max_data_size": [512],
     "batch_size": [16],
