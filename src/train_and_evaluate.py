@@ -30,9 +30,9 @@ for opt, arg in opts:
     if opt == "-i":
         index = arg
     elif opt == "-e":
-        args["epochs"] = arg
+        args["epochs"] = int(arg)
     elif opt == "-p":
-        args["patience"] = arg
+        args["patience"] = int(arg)
     elif opt == "-n":
         username = arg
 
@@ -61,9 +61,13 @@ for index in indices:
     headers = {**m_header_dict, **d_header_dict, **args}
 
     # Create file structure
-    PATH_TO_CHECKPOINTS = os.path.join("results", username, "checkpoints")
-    PATH_TO_MODELS = os.path.join("results", username, "models")
-    PATH_TO_CSV = os.path.join("results", username, "csv")
+    PATH_TO_CHECKPOINTS = os.path.abspath(
+        os.path.join("results", username, "checkpoints")
+    )
+    PATH_TO_MODELS = os.path.abspath(
+        os.path.join("results", username, "models")
+    )
+    PATH_TO_CSV = os.path.abspath(os.path.join("results", username, "csv"))
 
     os.makedirs(PATH_TO_CHECKPOINTS, exist_ok=True)
     os.makedirs(PATH_TO_MODELS, exist_ok=True)
@@ -107,7 +111,7 @@ for index in indices:
         h = model.fit(
             generator,
             epochs=args["epochs"],
-            callbacks=[early_stopping, checkpointing],
+            callbacks=[early_stopping],
             validation_data=validation_data,
         )
 
