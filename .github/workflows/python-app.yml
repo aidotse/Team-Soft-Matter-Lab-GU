@@ -40,6 +40,7 @@ jobs:
         python -m unittest discover -s test
     - name: Create local changes
       run: |
+        cd src
         python plot_all_results.py
     - name: Commit files
       continue-on-error: true
