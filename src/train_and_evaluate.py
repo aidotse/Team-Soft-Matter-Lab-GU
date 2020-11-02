@@ -19,8 +19,8 @@ opts, args = getopt.getopt(sys.argv[2:], "i:e:p:n:")
 script = sys.argv[1]
 # Defaults
 args = {
-    "epochs": 100,
-    "patience": 10,
+    "epochs": 100000,
+    "patience": 100,
 }
 
 username = getpass.getuser()
