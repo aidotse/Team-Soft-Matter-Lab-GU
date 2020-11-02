@@ -27,7 +27,7 @@ def get_generator(
     conf["root_path"] = root_path
     args = {
         "feature": apido.DataLoader(
-            # augmentation=augmentation_dict,
+            augmentation=augmentation_dict,
             seed=seed,
             path=root_path,
         ),
