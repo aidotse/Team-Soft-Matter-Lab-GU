@@ -1,11 +1,11 @@
-import sys
-import deeptrack as dt
 import numpy as np
+from typing import List
+import deeptrack as dt
 
-_validation_set_size = 8
+_VALIDATION_SET_SIZE = 8
 
 
-def feature():
+def feature() -> dt.Feature:
     fluorescence = dt.Fluorescence(
         magnification=5, output_region=(0, 0, 256, 256)
     )
@@ -29,33 +29,34 @@ def feature():
     return pipeline
 
 
-def batch_function(image: dt.image.Image):
+def batch_function(image: dt.Image or List[dt.Image]) -> dt.Image:
     return image[0]
 
 
-def label_function(image: dt.image.Image):
+def label_function(image: dt.Image or List[dt.Image]) -> dt.Image:
     return image[1]
 
 
 def get_generator(min_data_size=1000, max_data_size=2000, **kwargs):
-    return dt.generators.ContinuousGenerator(
-        feature(),
-        batch_function=batch_function,
-        label_function=label_function,
-        min_data_size=min_data_size,
-        max_data_size=max_data_size,
-        **kwargs
-    )
+
+    args = {
+        "feature": feature(),
+        "label_function": label_function,
+        "min_data_size": min_data_size,
+        "max_data_size": max_data_size,
+        **kwargs,
+    }
+    return dt.utils.safe_call(dt.generators.ContinuousGenerator, **args)
 
 
-def get_validation_set(size=_validation_set_size):
-    f = feature()
+def get_validation_set(size=_VALIDATION_SET_SIZE):
+    data_loader = feature()
 
     data = []
     labels = []
     for _ in range(size):
-        f.update(is_valdidation=True)
-        output = f.resolve()
+        data_loader.update(is_valdidation=True)
+        output = data_loader.resolve()
         data.append(batch_function(output))
         labels.append(label_function(output))
 

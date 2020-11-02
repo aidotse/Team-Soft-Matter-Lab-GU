@@ -111,7 +111,7 @@ for prod in itertools.product(*TEST_VARIABLES.values()):
         (
             arguments,
             lambda: apido.get_generator(
-                min_data_size=16, max_data_size=1000, batch_size=8
+                min_data_size=100, max_data_size=1000, batch_size=8
             ),
         )
     )

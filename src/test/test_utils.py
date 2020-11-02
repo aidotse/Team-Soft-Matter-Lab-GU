@@ -35,15 +35,38 @@ class TestSequences(unittest.TestCase):
 
     def test_get_date_from_filename(self):
         time = datetime.datetime.now()
-
-        filename = apido.get_checkpoint_name("test", 32)
-        print(filename)
+        filename = apido.get_checkpoint_name("test")
         retrieved_time = apido.get_date_from_filename(filename)
 
         self.assertLess(time - retrieved_time, datetime.timedelta(seconds=1))
 
+    def test_parse_index(self):
 
-datetime.time
+        for i in range(100):
+            self.assertListEqual(list(apido.parse_index(str(i))), [i])
+
+        self.assertListEqual(list(apido.parse_index(":100")), list(range(100)))
+
+        self.assertListEqual(
+            list(apido.parse_index("10:100")), list(range(10, 100))
+        )
+
+        self.assertListEqual(
+            list(apido.parse_index("10:100:10")), list(range(10, 100, 10))
+        )
+
+        self.assertListEqual(
+            list(apido.parse_index(":100:10")), list(range(0, 100, 10))
+        )
+
+        indices = apido.parse_index("::10")
+        self.assertEqual(next(indices), 0)
+        self.assertEqual(next(indices), 10)
+
+        indices = apido.parse_index("5::10")
+        self.assertEqual(next(indices), 5)
+        self.assertEqual(next(indices), 15)
+
 
 if __name__ == "__main__":
     unittest.main()

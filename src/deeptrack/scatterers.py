@@ -24,6 +24,7 @@ import deeptrack.backend as D
 from deeptrack.features import Feature, MERGE_STRATEGY_APPEND
 from deeptrack.image import Image
 import deeptrack.image
+import warnings
 
 
 class Scatterer(Feature):
@@ -120,7 +121,6 @@ class Scatterer(Feature):
         # Post processes the created object to handle upsampling,
         # as well as cropping empty slices.
         if not self._processed_properties:
-            import warnings
 
             warnings.warn(
                 "Overridden _process_properties method does not call super. "

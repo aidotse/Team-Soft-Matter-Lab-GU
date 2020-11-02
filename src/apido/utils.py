@@ -1,7 +1,12 @@
+import re
 import csv
 import getpass
 import datetime
 import numpy as np
+import itertools
+
+_checkpoint_struct = "{0}_{1}_model_{2}"
+_datestring_struct = "%d-%m-%YT%H;%M;%S"
 
 
 def save_history_as_csv(
@@ -26,6 +31,7 @@ def save_history_as_csv(
         Extra heading at the top of the csv
     delimiter : str
         Delimination character placed between entries. Defaults to tab.
+
     """
 
     assert path.endswith(".csv"), "File format needs to be .csv"
@@ -72,16 +78,15 @@ def read_csv(path, delimiter="\t"):
     return headers, result_dict
 
 
-_checkpoint_struct = "{0}_{1}_model_{2}_bs_{3}"
-_datestring_struct = "%d-%m-%YT%H;%M;%S"
-
-
-def get_datestring(dtime=None) -> str:
+def get_datestring(dtime=None):
     """Return a formated string displaying the current date."""
-    return (dtime or datetime.datetime.now()).strftime(_datestring_struct)
+
+    if dtime is None:
+        dtime = datetime.datetime.now()
+    return dtime.strftime(_datestring_struct)
 
 
-def get_date_from_filename(filename) -> datetime.datetime:
+def get_date_from_filename(filename: str):
     """Extract datetime object from filename"""
     datestring = filename.split("_")[1]
 
@@ -89,7 +94,7 @@ def get_date_from_filename(filename) -> datetime.datetime:
     return date
 
 
-def get_checkpoint_name(index: int or str, batch_size) -> str:
+def get_checkpoint_name(index: int or str, name: str = getpass.getuser()):
     """Return a filename corresponding to a training configuration.
 
     Paramterers
@@ -98,9 +103,28 @@ def get_checkpoint_name(index: int or str, batch_size) -> str:
         Index used for
     """
 
-    return _checkpoint_struct.format(
-        getpass.getuser(),
-        get_datestring(),
-        index,
-        batch_size,
-    )
+    return _checkpoint_struct.format(name, get_datestring(), index)
+
+
+_RE_PATTERN = r"([0-9]*):([0-9]*)(?::([0-9]*)){0,1}"
+
+
+def parse_index(index: str):
+    try:
+        return iter([int(index)])
+    except ValueError:
+        match = re.match(_RE_PATTERN, index)
+
+        if match is None:
+            raise ValueError(
+                "Could not parse index. Valid examples include: 0, 4:8, :6, 4:, 4:16:4 etc."
+            )
+        start = int(match.group(1) or 0)
+        stop = int(match.group(2) or -1)
+        step = int(match.group(3) or 1)
+
+        if stop == -1:
+            return itertools.count(start, step)
+        else:
+
+            return range(start, stop, step)

@@ -10,7 +10,7 @@ try:
 except Exception:
     import warnings
 
-    InstanceNormalization = layers.Layer()
+    InstanceNormalization = layers.Layer
     warnings.warn(
         "DeepTrack not installed with tensorflow addons. Instance normalization will not work. Consider upgrading to tensorflow >= 2.0.",
         ImportWarning,
@@ -251,14 +251,13 @@ def StaticUpsampleBlock(
 
     def Layer(filters, **kwargs_inner):
         kwargs_inner.update(kwargs)
-        layer = layers.UpSampling2D(
-            size=size, interpolation=interpolation, **kwargs_inner
-        )
+        layer = layers.UpSampling2D(size=size, interpolation=interpolation)
         conv = layers.Conv2D(
             filters,
             kernel_size=kernel_size,
             strides=strides,
             padding=padding,
+            **kwargs_inner
         )
 
         def call(x):

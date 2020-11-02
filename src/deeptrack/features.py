@@ -711,27 +711,6 @@ class ConditionalSetFeature(StructuralFeature):
                 return image
 
 
-class Constant(Feature):
-    """Returns a value regardless of its input.
-
-    A typical use is at the start of a pipeline, to feed it an empty array
-    as an input.
-
-    Parameters
-    ----------
-    value : number or array-like
-        The value to return.
-    """
-
-    __distributed__ = False
-
-    def __init__(self, value=0, **kwargs):
-        super().__init__(value=value, **kwargs)
-
-    def get(self, *ign, value, **kwargs):
-        return value
-
-
 class Lambda(Feature):
     """Calls a custom function on each image in the input.
 
@@ -903,30 +882,34 @@ class LoadImage(Feature):
         get_one_random,
         **kwargs
     ):
+        if not isinstance(path, List):
+            path = [path]
         if load_options is None:
             load_options = {}
         try:
-            image = np.load(path, **load_options)
+            image = [np.load(file, **load_options) for file in path]
         except (IOError, ValueError):
             try:
                 from skimage import io
 
-                image = io.imread(path)
+                image = [io.imread(file) for file in path]
             except (IOError, ImportError, AttributeError):
                 try:
                     import PIL.Image
 
-                    image = np.array(PIL.Image.open(path, **load_options))
+                    image = [
+                        PIL.Image.open(file, **load_options) for file in path
+                    ]
                 except (IOError, ImportError):
                     import cv2
 
-                    image = np.array(cv2.imread(path, **load_options))
+                    image = [cv2.imread(file, **load_options) for file in path]
                     if not image:
                         raise IOError(
                             "No filereader available for file {0}".format(path)
                         )
 
-        image = np.squeeze(image)
+        image = np.stack(image, axis=-1)
 
         if to_grayscale:
             try:
