@@ -2,6 +2,7 @@ import deeptrack as dt
 import numpy as np
 import itertools
 import glob
+import random
 import re
 
 props_per_magnification = {
@@ -9,6 +10,7 @@ props_per_magnification = {
     "40x": {"wells": 9, "sites_per_well": 8, "z_slides": 7},
     "60x": {"wells": 9, "sites_per_well": 12, "z_slides": 7},
 }
+
 
 default_augmentation_list = {
     "FlipLR": {},
@@ -22,6 +24,10 @@ default_augmentation_list = {
             "y": np.random.rand() * 0.3 + 0.85,
         },
         "mode": "reflect",
+    },
+    "Crop": {
+        "crop": (256, 256, 7),
+        "corner": lambda: (*np.random.randint(0, 10000, size=2), 0),
     },
 }
 
@@ -45,11 +51,18 @@ def Augmentation(
     return augmented_image
 
 
-def DataLoader(path=None, magnification="60x", format=".tif", **kwargs):
+def DataLoader(
+    path=None,
+    magnification="60x",
+    format=".tif",
+    augmentation=None,
+    training_split=0.7,
+    seed=None,
+    **kwargs
+):
 
     # Define path to the dataset
     path_to_dataset = path + magnification + " images/"
-
     input_root = path_to_dataset + "input/"
     label_root = path_to_dataset + "targets/"
 
@@ -69,14 +82,24 @@ def DataLoader(path=None, magnification="60x", format=".tif", **kwargs):
     )
 
     # Iterate over wells and sites
-    wells_iterator = itertools.cycle(iter(wells))
-    site_iterator = itertools.cycle(
-        iter(
+
+    site_config = list(
+        itertools.product(
+            wells,
             range(
                 1, props_per_magnification[magnification]["sites_per_well"] + 1
-            )
+            ),
         )
     )
+
+    split = (len(site_config) * training_split) // 1
+
+    if seed:
+        random.seed(seed)
+    random.shuffle(site_config)
+
+    training_iterator = itertools.cycle(site_config[:split])
+    validation_iterator = itertools.cycle(site_config[split:])
 
     load_string_struct = (
         "{0}AssayPlate_Greiner_#655090_{1}_T0001F{2}L01A0{3}Z0{4}C0{3}"
@@ -84,10 +107,14 @@ def DataLoader(path=None, magnification="60x", format=".tif", **kwargs):
     )
 
     root = dt.DummyFeature(
-        index_well=lambda: next(wells_iterator),
-        index_site=lambda: ("00" + str(next(site_iterator)))[-3:],
-        # index_site="012",
-        index_action_list_number=list(range(1, 4)),
+        well_site_tuple=lambda is_validation: next(validation_iterator)
+        if is_validation
+        else next(training_iterator),
+        index_well=lambda well_site_tuple: well_site_tuple[0],
+        index_site=lambda well_site_tuple: ("00" + str(well_site_tuple[1]))[
+            -3:
+        ],
+        index_action_list_number=[1, 2, 3],
         index_z_slide=list(
             range(1, props_per_magnification[magnification]["z_slides"] + 1)
         ),
@@ -112,12 +139,12 @@ def DataLoader(path=None, magnification="60x", format=".tif", **kwargs):
         **root.properties,
     )
 
-    dataset = dt.Combine([bf, fl]) + dt.Crop(
-        crop=(256, 256, 7),
-        corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
-    )
+    dataset = dt.Combine([bf, fl]) + dt.CropToMultiplesOf(multiple=32)
 
-    augmented_dataset = Augmentation(dataset)
+    if augmentation:
+        augmented_dataset = Augmentation(dataset)
+    else:
+        augmented_dataset = dataset
 
     return dt.ConditionalSetFeature(
         on_true=dataset,
