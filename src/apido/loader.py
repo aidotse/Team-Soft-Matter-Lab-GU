@@ -37,11 +37,9 @@ def Augmentation(
 
     augmented_image = image
     for augmentation in augmentation_list:
-        augmented_image = (
-            getattr(dt, augmentation, default_value)(
-                **augmentation_list.get(augmentation), **kwargs
-            )
-            + augmented_image
+        print("With ", augmentation)
+        augmented_image += getattr(dt, augmentation, default_value)(
+            **augmentation_list.get(augmentation), **kwargs
         )
 
     return augmented_image
@@ -59,7 +57,7 @@ def DataLoader(
 
     # Define path to the dataset
     path_to_dataset = path + magnification + " images/"
-    print(path_to_dataset)
+
     # Number of input files
     input_files = glob.glob(path_to_dataset + "*.tif")
 
@@ -90,6 +88,8 @@ def DataLoader(
 
     if seed:
         random.seed(seed)
+        np.random.seed(seed)
+
     random.shuffle(site_config)
 
     training_iterator = itertools.cycle(site_config[:split])
@@ -101,8 +101,8 @@ def DataLoader(
     )
 
     root = dt.DummyFeature(
-        well_site_tuple=lambda is_validation: next(validation_iterator)
-        if is_validation
+        well_site_tuple=lambda validation: next(validation_iterator)
+        if validation
         else next(training_iterator),
         index_well=lambda well_site_tuple: well_site_tuple[0],
         index_site=lambda well_site_tuple: ("00" + str(well_site_tuple[1]))[
@@ -125,7 +125,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + dt.Lambda(lambda: lambda image: image / 127.5 - 1)
+        + dt.NormalizeMinMax(-1, 1)
     )
 
     fl = (
@@ -139,24 +139,28 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + dt.Lambda(lambda: lambda image: image / 127.5 - 1)
+        + dt.NormalizeMinMax(-1, 1)
     )
 
     dataset = dt.Combine([bf, fl])
 
-    validation_dataset = dataset + dt.Crop(
+    validation_dataset = dt.Crop(
+        dataset,
         crop=(256, 256, 7),
         corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
+        updates_per_reload=16,
     )
 
     if augmentation:
-        augmented_dataset = Augmentation(dataset)
+        augmented_dataset = Augmentation(
+            dataset, augmentation_list=augmentation
+        )
     else:
         augmented_dataset = dataset
 
     augmented_dataset = dt.Crop(
         augmented_dataset,
-        updates_per_reload=16,
+        updates_per_reload=32,
         crop=(256, 256, 7),
         corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
     )

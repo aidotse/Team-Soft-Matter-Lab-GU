@@ -6,7 +6,7 @@ import numpy as np
 
 def user_results(username):
     path = os.path.join("./results", username, "csv")
-    os.makedir(path)
+    os.makedirs(path, exist_ok=True)
     paths = os.listdir(path)
     for file in paths:
         if not file.endswith(".csv"):

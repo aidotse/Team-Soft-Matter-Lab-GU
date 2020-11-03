@@ -1,14 +1,63 @@
 import apido
 import itertools
 import deeptrack as dt
+import numpy as np
 from tensorflow.keras import layers
 
 
 TEST_VARIABLES = {
-    "generator_depth": [3, 4, 5],
-    "generator_base_breadth": [16, 32, 48],
-    "batch_size": [2],
-    "min_data_size": [100],
+    "seed": [0],
+    "generator_depth": [4],
+    "generator_base_breadth": [16],
+    "batch_size": [8],
+    "min_data_size": [200],
+    "max_data_size": [400],
+    "augmentation_dict": [
+        {},
+        {"FlipLR": {}},
+        {
+            "FlipLR": {},
+            "Affine": {"rotate": lambda: np.random.rand() * 2 * np.pi},
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+            },
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+            },
+            "ElasticTransformation": {"alpha": 70, "sigma": 7},
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+            "ElasticTransformation": {"alpha": 70, "sigma": 7},
+        },
+    ],
 }
 
 
@@ -33,7 +82,7 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
             generator_base_breadth * 2 ** n for n in range(generator_depth - 1)
         ),  # number of features in each convolutional layer
         base_conv_layers_dimensions=(
-            generator_base_breadth * 2 ** generator_depth,
+            generator_base_breadth * 2 ** (generator_depth - 1),
         ),  # number of features at the base of the unet
         output_conv_layers_dimensions=(
             generator_base_breadth,
@@ -103,10 +152,12 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
 _models = []
 _generators = []
 
-for prod in itertools.product(*TEST_VARIABLES.values()):
 
-    arguments = dict(zip(TEST_VARIABLES.keys(), prod))
+def append_model(**arguments):
     _models.append((arguments, lambda: model_initializer(**arguments)))
+
+
+def append_generator(**arguments):
     _generators.append(
         (
             arguments,
@@ -115,6 +166,13 @@ for prod in itertools.product(*TEST_VARIABLES.values()):
             ),
         )
     )
+
+
+for prod in itertools.product(*TEST_VARIABLES.values()):
+
+    arguments = dict(zip(TEST_VARIABLES.keys(), prod))
+    append_model(**arguments)
+    append_generator(**arguments)
 
 
 def get_model(i):
@@ -134,4 +192,5 @@ def get_generator(i):
         pass
 
     args, generator = _generators[i]
+    print(i, args)
     return args, generator()
