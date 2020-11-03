@@ -3,7 +3,7 @@ from typing import List
 import deeptrack as dt
 import apido
 
-_VALIDATION_SET_SIZE = 256
+_VALIDATION_SET_SIZE = 16
 
 conf = {}
 
@@ -24,7 +24,7 @@ def get_generator(
     root_path=".",
     **kwargs
 ):
-    
+
     feature = apido.DataLoader(
         augmentation=augmentation_dict, seed=seed, path=root_path, **kwargs
     )

@@ -1,6 +1,7 @@
 # Natives
 from os import error
 import tensorflow.keras as keras
+import tensorflow as tf
 import sys
 import os
 import getopt
@@ -11,6 +12,8 @@ import numpy as np
 
 # Locals
 import apido
+
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 # Grab passed arguments
 opts, args = getopt.getopt(sys.argv[2:], "i:e:p:n:")
@@ -49,8 +52,12 @@ PATH_TO_CHECKPOINTS = os.path.abspath(
 PATH_TO_MODELS = os.path.abspath(os.path.join("results", username, "models"))
 PATH_TO_CSV = os.path.abspath(os.path.join("results", username, "csv"))
 PATH_TO_IMAGES = os.path.abspath(os.path.join("results", username, "images"))
+PATH_TO_PREDICTIONS = os.path.abspath(
+    os.path.join("results", username, "predictions")
+)
 
 os.makedirs(PATH_TO_IMAGES, exist_ok=True)
+os.makedirs(PATH_TO_PREDICTIONS, exist_ok=True)
 os.makedirs(PATH_TO_CHECKPOINTS, exist_ok=True)
 os.makedirs(PATH_TO_MODELS, exist_ok=True)
 os.makedirs(PATH_TO_CSV, exist_ok=True)
@@ -103,25 +110,31 @@ for index in indices:
     validation_data = apido.get_validation_set()
 
     # Start training
-    print(
-        "Starting training. Model is saved to: {0}.h5".format(checkpoint_name)
-    )
+    print("Starting training. Model is saved to: {0}".format(checkpoint_name))
+
     with generator:
         h = model.fit(
             generator,
             epochs=args["epochs"],
             callbacks=[early_stopping],
             validation_data=validation_data,
+            validation_batch_size=2,
         )
 
-    predictions = model.predict(validation_data[0][:5])
+    predictions = model.predict(validation_data[0], batch_size=2)
 
     plot = apido.plot_evaluation(
-        validation_data[0], validation_data[1], predictions
+        validation_data[0], validation_data[1], predictions, ncols=2
     )
 
     plot.savefig(
         os.path.join(PATH_TO_IMAGES, checkpoint_name + ".png"), dpi=600
+    )
+
+    # Prediction
+    np.save(
+        os.path.join(PATH_TO_PREDICTIONS, checkpoint_name),
+        [predictions[:64], validation_data[1][:64]],
     )
 
     # Log results
@@ -135,7 +148,7 @@ for index in indices:
     best_loss = np.min(results["val_loss"])
 
     result_path = os.path.join(
-        PATH_TO_MODELS, "loss{0};{1}.h5".format(best_loss, checkpoint_name)
+        PATH_TO_MODELS, "loss{0};{1}".format(best_loss, checkpoint_name)
     )
 
     print(

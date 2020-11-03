@@ -61,7 +61,7 @@ def DataLoader(
     format=".tif",
     augmentation=None,
     normalization={},
-    training_split=0.7,
+    training_split=0.85,
     seed=None,
     **kwargs
 ):
@@ -101,7 +101,6 @@ def DataLoader(
         np.random.seed(seed)
 
     random.shuffle(site_config)
-
     training_iterator = itertools.cycle(site_config[:split])
     validation_iterator = itertools.cycle(site_config[split:])
 
@@ -154,10 +153,8 @@ def DataLoader(
 
     dataset = dt.Combine([bf, fl])
 
-    validation_dataset = dt.Crop(
-        dataset,
-        crop=(256, 256, 7),
-        corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
+    validation_dataset = dataset + dt.CropToMultiplesOf(
+        multiple=(64, 64, None),
         updates_per_reload=16,
     )
 

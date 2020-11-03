@@ -2,14 +2,12 @@ import apido
 import itertools
 import deeptrack as dt
 import numpy as np
-import bmidt
 from tensorflow.keras import layers, backend as K
-import tensorflow as tf
 
 
 TEST_VARIABLES = {
     "seed": [1],
-    "generator_depth": [4],
+    "generator_depth": [4, 5],
     "generator_base_breadth": [16],
     "batch_size": [8],
     "min_data_size": [200],
@@ -41,14 +39,9 @@ TEST_VARIABLES = {
             "Affine": {
                 "rotate": lambda: np.random.rand() * 2 * np.pi,
             },
-            "ElasticTransformation": {"alpha": 70, "sigma": 7},
-        },
-        {
-            "FlipLR": {},
-            "Affine": {
-                "rotate": lambda: np.random.rand() * 2 * np.pi,
-                "shear": lambda: np.random.rand() * 0.1 - 0.05,
-                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            "ElasticTransformation": {
+                "alpha": lambda: np.random.rand() * 80,
+                "sigma": 7,
             },
         },
         {
@@ -58,7 +51,18 @@ TEST_VARIABLES = {
                 "shear": lambda: np.random.rand() * 0.1 - 0.05,
                 "scale": lambda: np.random.rand() * 0.2 + 0.9,
             },
-            "ElasticTransformation": {"alpha": 70, "sigma": 7},
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+            "ElasticTransformation": {
+                "alpha": lambda: np.random.rand() * 80,
+                "sigma": 7,
+            },
         },
     ],
 }
@@ -159,7 +163,7 @@ def model_initializer(
         discriminator_metrics="accuracy",
         assemble_loss=["mse", apido.combined_metric()],
         assemble_optimizer=Adam(lr=0.0002, beta_1=0.5),
-        assemble_loss_weights=[1, 0.8],
+        assemble_loss_weights=[1, 0.001],
     )
 
     return model

@@ -1,19 +1,23 @@
 import apido
 from tensorflow import keras
 import os
+import numpy as np
 import bmidt
 
-model = keras.models.load_model(
+model = bmidt.get_model(0)[1].generator
+model.load_weights(
     os.path.abspath(
-        "./results/bmidt/models/loss0.29744723439216614;bmidt_03-11-2020T15;15;20_model_0.h5"
+        "./results/bmidt/models/loss114.87405395507812;root_03-11-2020T16;52;18_model_0.h5"
     ),
-    compile=False,
 )
 
 loader = bmidt.get_generator(0)
+
 validation_set = apido.get_validation_set()
 
 prediction = model.predict(validation_set[0])
 
-plt = apido.plot_evaluation(validation_set[0], validation_set[1], prediction)
-plt.show()
+np.save(
+    "loss114.87405395507812;root_03-11-2020T16;52;18_model_0",
+    [prediction, validation_set[1]],
+)
