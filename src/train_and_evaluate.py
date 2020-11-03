@@ -121,7 +121,7 @@ for index in indices:
             validation_batch_size=2,
         )
 
-    predictions = model.predict(validation_data[0], batch_size=2)
+    predictions = model.predict(validation_data[0][:2], batch_size=2)
 
     plot = apido.plot_evaluation(
         validation_data[0], validation_data[1], predictions, ncols=2
@@ -134,7 +134,7 @@ for index in indices:
     # Prediction
     np.save(
         os.path.join(PATH_TO_PREDICTIONS, checkpoint_name),
-        [predictions[:64], validation_data[1][:64]],
+        [predictions[:2], validation_data[1][:2]],
     )
 
     # Log results
