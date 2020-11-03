@@ -3,6 +3,7 @@ import itertools
 import deeptrack as dt
 from tensorflow.keras import layers
 from tensorflow.keras.initializers import RandomNormal
+import numpy as np
 
 
 TEST_VARIABLES = {
@@ -14,6 +15,49 @@ TEST_VARIABLES = {
     "min_data_size": [256],
     "max_data_size": [512],
     "batch_size": [16],
+    "augmentation_dict": [
+        {},
+        {"FlipLR": {}},
+        {"FlipLR": {}, "Affine": {"rotate": np.random.rand() * 2 * np.pi}},
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": np.random.rand() * 2 * np.pi,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+            },
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+            },
+            "ElasticTransformation": {"alpha": 70, "sigma": 7},
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+            "ElasticTransformation": {"alpha": 70, "sigma": 7},
+        },
+    ],
 }
 
 
@@ -132,10 +176,12 @@ def model_initializer(
 _models = []
 _generators = []
 
-for prod in itertools.product(*TEST_VARIABLES.values()):
 
-    arguments = dict(zip(TEST_VARIABLES.keys(), prod))
+def append_model(**arguments):
     _models.append((arguments, lambda: model_initializer(**arguments)))
+
+
+def append_generator(**arguments):
     _generators.append(
         (
             arguments,
@@ -145,6 +191,13 @@ for prod in itertools.product(*TEST_VARIABLES.values()):
             ),
         )
     )
+
+
+for prod in itertools.product(*TEST_VARIABLES.values()):
+
+    arguments = dict(zip(TEST_VARIABLES.keys(), prod))
+    append_model(**arguments)
+    append_generator(**arguments)
 
 
 def get_model(i):
@@ -164,4 +217,5 @@ def get_generator(i):
         pass
 
     args, generator = _generators[i]
+    print(i, args)
     return args, generator()
