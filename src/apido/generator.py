@@ -3,7 +3,7 @@ from typing import List
 import deeptrack as dt
 import apido
 
-_VALIDATION_SET_SIZE = 512
+_VALIDATION_SET_SIZE = 256
 
 conf = {}
 

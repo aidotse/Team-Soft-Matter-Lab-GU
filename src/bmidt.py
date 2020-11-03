@@ -15,11 +15,14 @@ TEST_VARIABLES = {
     "augmentation_dict": [
         {},
         {"FlipLR": {}},
-        {"FlipLR": {}, "Affine": {"rotate": np.random.rand() * 2 * np.pi}},
+        {
+            "FlipLR": {},
+            "Affine": {"rotate": lambda: np.random.rand() * 2 * np.pi},
+        },
         {
             "FlipLR": {},
             "Affine": {
-                "rotate": np.random.rand() * 2 * np.pi,
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
                 "scale": lambda: np.random.rand() * 0.2 + 0.9,
             },
         },
@@ -152,6 +155,7 @@ _generators = []
 
 def append_model(**arguments):
     _models.append((arguments, lambda: model_initializer(**arguments)))
+
 
 def append_generator(**arguments):
     _generators.append(
