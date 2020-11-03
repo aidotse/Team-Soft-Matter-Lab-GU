@@ -2,16 +2,17 @@ import apido
 import itertools
 import deeptrack as dt
 import numpy as np
-from tensorflow.keras import layers
+from tensorflow.keras import layers, backend as K
 
 
 TEST_VARIABLES = {
-    "seed": [0],
-    "generator_depth": [4],
+    "seed": [1],
+    "generator_depth": [4, 5],
     "generator_base_breadth": [16],
     "batch_size": [8],
     "min_data_size": [200],
     "max_data_size": [400],
+    "normalization": [{"std": 2250, "mean": 1500}],
     "augmentation_dict": [
         {},
         {"FlipLR": {}},
@@ -38,14 +39,9 @@ TEST_VARIABLES = {
             "Affine": {
                 "rotate": lambda: np.random.rand() * 2 * np.pi,
             },
-            "ElasticTransformation": {"alpha": 70, "sigma": 7},
-        },
-        {
-            "FlipLR": {},
-            "Affine": {
-                "rotate": lambda: np.random.rand() * 2 * np.pi,
-                "shear": lambda: np.random.rand() * 0.1 - 0.05,
-                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            "ElasticTransformation": {
+                "alpha": lambda: np.random.rand() * 80,
+                "sigma": 7,
             },
         },
         {
@@ -55,15 +51,37 @@ TEST_VARIABLES = {
                 "shear": lambda: np.random.rand() * 0.1 - 0.05,
                 "scale": lambda: np.random.rand() * 0.2 + 0.9,
             },
-            "ElasticTransformation": {"alpha": 70, "sigma": 7},
+        },
+        {
+            "FlipLR": {},
+            "Affine": {
+                "rotate": lambda: np.random.rand() * 2 * np.pi,
+                "shear": lambda: np.random.rand() * 0.1 - 0.05,
+                "scale": lambda: np.random.rand() * 0.2 + 0.9,
+            },
+            "ElasticTransformation": {
+                "alpha": lambda: np.random.rand() * 80,
+                "sigma": 7,
+            },
         },
     ],
 }
 
 
-def model_initializer(generator_depth, generator_base_breadth, **kwargs):
+def model_initializer(
+    generator_depth,
+    generator_base_breadth,
+    normalization={"mean": 0, "std": 1},
+    **kwargs
+):
+    normalization_layer = layers.Lambda(
+        lambda x: K.tanh((x - normalization["mean"]) / normalization["std"])
+    )
 
-    activation = lambda x: layers.LeakyReLU(0.2)(x)
+    denormalization_layer = layers.Lambda(
+        lambda x: 0.5 * x * normalization["std"] + normalization["mean"]
+    )
+    activation = layers.LeakyReLU(0.2)
 
     convolution_block = dt.layers.ConvolutionalBlock(
         activation=activation, instance_norm=True
@@ -90,9 +108,10 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
         ),  # number of features in convolutional layer after the U-net
         steps_per_pooling=2,  # 2                                 # number of convolutional layers per pooling layer
         number_of_outputs=3,  # number of output features
-        output_activation="tanh",  # activation function on final layer
+        output_activation=denormalization_layer,  # activation function on final layer
         compile=False,
         output_kernel_size=1,
+        input_layer=normalization_layer,
         encoder_convolution_block=convolution_block,
         decoder_convolution_block=convolution_block,
         base_convolution_block=base_block,
@@ -126,6 +145,7 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
         dense_layers_dimensions=(),  # number of neurons in each dense layer
         number_of_outputs=1,  # number of neurons in the final dense step (numebr of output values)
         compile=False,
+        input_layer=normalization_layer,
         output_kernel_size=4,
         dense_top=False,
         convolution_block=discriminator_convolution_block,
@@ -143,6 +163,7 @@ def model_initializer(generator_depth, generator_base_breadth, **kwargs):
         discriminator_metrics="accuracy",
         assemble_loss=["mse", apido.combined_metric()],
         assemble_optimizer=Adam(lr=0.0002, beta_1=0.5),
+        assemble_loss_weights=[1, 0.001],
     )
 
     return model
@@ -192,5 +213,4 @@ def get_generator(i):
         pass
 
     args, generator = _generators[i]
-    print(i, args)
     return args, generator()

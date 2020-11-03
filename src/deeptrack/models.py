@@ -188,6 +188,7 @@ def Convolutional(
     output_activation=None,
     output_kernel_size=3,
     loss=nd_mean_absolute_error,
+    input_layer=None,
     convolution_block="convolutional",
     pooling_block="pooling",
     dense_block="dense",
@@ -235,6 +236,9 @@ def Convolutional(
         inputs = network_input
 
     layer = inputs
+
+    if input_layer:
+        layer = input_layer(layer)
 
     ### CONVOLUTIONAL BASIS
     for conv_layer_dimension in conv_layers_dimensions:
@@ -288,6 +292,7 @@ def UNet(
     output_kernel_size=3,
     output_activation=None,
     loss=nd_mean_absolute_error,
+    input_layer=None,
     encoder_convolution_block="convolutional",
     base_convolution_block="convolutional",
     decoder_convolution_block="convolutional",
@@ -344,6 +349,9 @@ def UNet(
 
     layer = unet_input
 
+    if input_layer:
+        layer = input_layer(layer)
+
     # Downsampling path
     for conv_layer_dimension in conv_layers_dimensions:
         for _ in range(steps_per_pooling):
@@ -374,7 +382,7 @@ def UNet(
     # Output step
     for conv_layer_dimension in output_conv_layers_dimensions:
         layer = output_convolution_block(conv_layer_dimension)(layer)
-
+    
     output_layer = layers.Conv2D(
         number_of_outputs,
         kernel_size=output_kernel_size,

@@ -1,9 +1,10 @@
 import re
 import csv
-import getpass
 import datetime
 import numpy as np
 import itertools
+
+from tensorflow.python.framework.tensor_conversion_registry import get
 
 _checkpoint_struct = "{0}_{1}_model_{2}"
 _datestring_struct = "%d-%m-%YT%H;%M;%S"
@@ -94,7 +95,7 @@ def get_date_from_filename(filename: str):
     return date
 
 
-def get_checkpoint_name(index: int or str, name: str = getpass.getuser()):
+def get_checkpoint_name(index: int or str, name: str = None):
     """Return a filename corresponding to a training configuration.
 
     Paramterers
@@ -102,6 +103,8 @@ def get_checkpoint_name(index: int or str, name: str = getpass.getuser()):
     index : int or str
         Index used for
     """
+    if name is None:
+        name = get_user_name()
 
     return _checkpoint_struct.format(name, get_datestring(), index)
 
@@ -128,3 +131,19 @@ def parse_index(index: str):
         else:
 
             return range(start, stop, step)
+
+
+def get_user_name():
+    try:
+        import getpass
+
+        return getpass.getuser()
+
+    except Exception:
+        import os
+
+        here = os.path.abspath(".").split(os.pathsep)
+        for idx, dirname in enumerate(here):
+            if dirname in ("user", "User", "Users", "users"):
+                return here[idx + 1]
+        return "unknown"

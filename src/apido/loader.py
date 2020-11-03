@@ -1,5 +1,6 @@
 import deeptrack as dt
 import numpy as np
+import scipy
 import itertools
 import glob
 import random
@@ -45,9 +46,13 @@ def Augmentation(
     return augmented_image
 
 
-Normalization = dt.Lambda(
-    lambda mean=0, std=1: lambda image: (image - mean) / std
-)
+def Normalization(**kwargs):
+    return dt.Lambda(
+        lambda mean=0, std=1: lambda image: np.tanh(
+            (image * 1.0 - mean) / std
+        ),
+        **kwargs,
+    )
 
 
 def DataLoader(
@@ -56,11 +61,10 @@ def DataLoader(
     format=".tif",
     augmentation=None,
     normalization={},
-    training_split=0.7,
+    training_split=0.85,
     seed=None,
     **kwargs
 ):
-
     # Define path to the dataset
     path_to_dataset = path + magnification + " images/"
 
@@ -92,12 +96,11 @@ def DataLoader(
 
     split = int((len(site_config) * training_split))
 
-    if seed:
+    if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
 
     random.shuffle(site_config)
-
     training_iterator = itertools.cycle(site_config[:split])
     validation_iterator = itertools.cycle(site_config[split:])
 
@@ -131,7 +134,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + Normalization(**normalization)
+        + dt.Lambda(lambda: lambda i: i * 1.0)
     )
 
     fl = (
@@ -145,15 +148,13 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + Normalization(**normalization)
+        + dt.Lambda(lambda: lambda i: i * 1.0)
     )
 
     dataset = dt.Combine([bf, fl])
 
-    validation_dataset = dt.Crop(
-        dataset,
-        crop=(256, 256, 7),
-        corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
+    validation_dataset = dataset + dt.CropToMultiplesOf(
+        multiple=(64, 64, None),
         updates_per_reload=16,
     )
 
