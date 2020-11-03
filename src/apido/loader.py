@@ -1,5 +1,6 @@
 import deeptrack as dt
 import numpy as np
+import scipy
 import itertools
 import glob
 import random
@@ -45,9 +46,13 @@ def Augmentation(
     return augmented_image
 
 
-Normalization = dt.Lambda(
-    lambda mean=0, std=1: lambda image: (image - mean) / std
-)
+def Normalization(**kwargs):
+    return dt.Lambda(
+        lambda mean=0, std=1: lambda image: np.tanh(
+            (image * 1.0 - mean) / std
+        ),
+        **kwargs,
+    )
 
 
 def DataLoader(
@@ -60,7 +65,6 @@ def DataLoader(
     seed=None,
     **kwargs
 ):
-
     # Define path to the dataset
     path_to_dataset = path + magnification + " images/"
 
@@ -131,7 +135,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + Normalization(**normalization)
+        + dt.Lambda(lambda: lambda i: i * 1.0)
     )
 
     fl = (
@@ -145,7 +149,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + Normalization(**normalization)
+        + dt.Lambda(lambda: lambda i: i * 1.0)
     )
 
     dataset = dt.Combine([bf, fl])

@@ -24,11 +24,9 @@ def get_generator(
     root_path=".",
     **kwargs
 ):
-
+    
     feature = apido.DataLoader(
-        augmentation=augmentation_dict,
-        seed=seed,
-        path=root_path,
+        augmentation=augmentation_dict, seed=seed, path=root_path, **kwargs
     )
 
     conf["feature"] = feature

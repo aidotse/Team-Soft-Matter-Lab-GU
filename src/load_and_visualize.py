@@ -1,6 +1,7 @@
 import apido
 from tensorflow import keras
 import os
+import bmidt
 
 model = keras.models.load_model(
     os.path.abspath(
@@ -9,7 +10,7 @@ model = keras.models.load_model(
     compile=False,
 )
 
-loader = apido.get_generator(seed=0, root_path="D:/hackathon/")
+loader = bmidt.get_generator(0)
 validation_set = apido.get_validation_set()
 
 prediction = model.predict(validation_set[0])

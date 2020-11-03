@@ -139,7 +139,7 @@ def get_user_name():
 
         return getpass.getuser()
 
-    except Exception as e:
+    except Exception:
         import os
 
         here = os.path.abspath(".").split(os.pathsep)

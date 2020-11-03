@@ -48,7 +48,9 @@ PATH_TO_CHECKPOINTS = os.path.abspath(
 )
 PATH_TO_MODELS = os.path.abspath(os.path.join("results", username, "models"))
 PATH_TO_CSV = os.path.abspath(os.path.join("results", username, "csv"))
+PATH_TO_IMAGES = os.path.abspath(os.path.join("results", username, "images"))
 
+os.makedirs(PATH_TO_IMAGES, exist_ok=True)
 os.makedirs(PATH_TO_CHECKPOINTS, exist_ok=True)
 os.makedirs(PATH_TO_MODELS, exist_ok=True)
 os.makedirs(PATH_TO_CSV, exist_ok=True)
@@ -111,6 +113,16 @@ for index in indices:
             callbacks=[early_stopping],
             validation_data=validation_data,
         )
+
+    predictions = model.predict(validation_data[0][:5])
+
+    plot = apido.plot_evaluation(
+        validation_data[0], validation_data[1], predictions
+    )
+
+    plot.savefig(
+        os.path.join(PATH_TO_IMAGES, checkpoint_name + ".png"), dpi=600
+    )
 
     # Log results
     results = h.history
