@@ -45,11 +45,17 @@ def Augmentation(
     return augmented_image
 
 
+Normalization = dt.Lambda(
+    lambda mean=0, std=1: lambda image: (image - mean) / std
+)
+
+
 def DataLoader(
     path=None,
     magnification="60x",
     format=".tif",
     augmentation=None,
+    normalization={},
     training_split=0.7,
     seed=None,
     **kwargs
@@ -125,7 +131,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + dt.NormalizeMinMax(-1, 1)
+        + Normalization(**normalization)
     )
 
     fl = (
@@ -139,7 +145,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + dt.NormalizeMinMax(-1, 1)
+        + Normalization(**normalization)
     )
 
     dataset = dt.Combine([bf, fl])
