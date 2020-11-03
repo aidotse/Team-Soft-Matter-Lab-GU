@@ -23,7 +23,7 @@ args = {
     "patience": 100,
 }
 
-username = "jesus"
+username = getpass.getuser()
 
 index = None
 for opt, arg in opts:
