@@ -55,3 +55,31 @@ def plot_results(metric="val_loss"):
     plt.ylabel(metric)
 
     return plt
+
+
+def plot_evaluation(brightfield, target, prediction, ncols=5):
+    plt.figure(figsize=(15, 5))
+    for col in range(ncols):
+        plt.subplot(4, ncols, col + 1)
+        plt.imshow(brightfield[col, :, :, 3])
+        plt.axis("off")
+        plt.subplot(4, ncols * 2, ncols * 2 + 1 + col * 2)
+        plt.imshow(prediction[col, :, :, 0])
+        plt.axis("off")
+        plt.subplot(4, ncols * 2, ncols * 2 + 2 + col * 2)
+        plt.imshow(target[col, :, :, 0])
+        plt.axis("off")
+        plt.subplot(4, ncols * 2, ncols * 4 + 1 + col * 2)
+        plt.imshow(prediction[col, :, :, 1])
+        plt.axis("off")
+        plt.subplot(4, ncols * 2, ncols * 4 + 2 + col * 2)
+        plt.imshow(target[col, :, :, 1])
+        plt.axis("off")
+        plt.subplot(4, ncols * 2, ncols * 6 + 1 + col * 2)
+        plt.imshow(prediction[col, :, :, 2])
+        plt.axis("off")
+        plt.subplot(4, ncols * 2, ncols * 6 + 2 + col * 2)
+        plt.imshow(target[col, :, :, 2])
+        plt.axis("off")
+    plt.subplots_adjust(hspace=0.02, wspace=0.02)
+    return plt

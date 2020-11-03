@@ -2,11 +2,12 @@ import apido
 import itertools
 import deeptrack as dt
 import numpy as np
+import bmidt
 from tensorflow.keras import layers
 
 
 TEST_VARIABLES = {
-    "seed": [0],
+    "seed": [1],
     "generator_depth": [4],
     "generator_base_breadth": [16],
     "batch_size": [8],
@@ -63,7 +64,7 @@ TEST_VARIABLES = {
 
 def model_initializer(generator_depth, generator_base_breadth, **kwargs):
 
-    activation = lambda x: layers.LeakyReLU(0.2)(x)
+    activation = layers.LeakyReLU(0.2)
 
     convolution_block = dt.layers.ConvolutionalBlock(
         activation=activation, instance_norm=True

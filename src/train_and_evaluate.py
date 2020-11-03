@@ -7,7 +7,6 @@ import getopt
 import importlib
 
 # Packages
-import getpass
 import numpy as np
 
 # Locals
@@ -23,7 +22,7 @@ args = {
     "patience": 100,
 }
 
-username = getpass.getuser()
+username = apido.get_user_name()
 
 index = None
 for opt, arg in opts:
@@ -42,7 +41,19 @@ if index is None:
 
 indices = apido.parse_index(index)
 
-# User import
+
+# Create file structure
+PATH_TO_CHECKPOINTS = os.path.abspath(
+    os.path.join("results", username, "checkpoints")
+)
+PATH_TO_MODELS = os.path.abspath(os.path.join("results", username, "models"))
+PATH_TO_CSV = os.path.abspath(os.path.join("results", username, "csv"))
+
+os.makedirs(PATH_TO_CHECKPOINTS, exist_ok=True)
+os.makedirs(PATH_TO_MODELS, exist_ok=True)
+os.makedirs(PATH_TO_CSV, exist_ok=True)
+
+
 user_models = importlib.import_module(script)
 
 for index in indices:
@@ -59,19 +70,6 @@ for index in indices:
         break
 
     headers = {**m_header_dict, **d_header_dict, **args}
-
-    # Create file structure
-    PATH_TO_CHECKPOINTS = os.path.abspath(
-        os.path.join("results", username, "checkpoints")
-    )
-    PATH_TO_MODELS = os.path.abspath(
-        os.path.join("results", username, "models")
-    )
-    PATH_TO_CSV = os.path.abspath(os.path.join("results", username, "csv"))
-
-    os.makedirs(PATH_TO_CHECKPOINTS, exist_ok=True)
-    os.makedirs(PATH_TO_MODELS, exist_ok=True)
-    os.makedirs(PATH_TO_CSV, exist_ok=True)
 
     model.compile(loss=apido.combined_metric(), metrics=apido.metrics())
 
@@ -107,7 +105,6 @@ for index in indices:
         "Starting training. Model is saved to: {0}.h5".format(checkpoint_name)
     )
     with generator:
-        batch = generator[0]
         h = model.fit(
             generator,
             epochs=args["epochs"],

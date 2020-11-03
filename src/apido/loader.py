@@ -86,7 +86,7 @@ def DataLoader(
 
     split = int((len(site_config) * training_split))
 
-    if seed:
+    if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
 
@@ -125,7 +125,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + dt.NormalizeMinMax(-1, 1)
+        + dt.Lambda(lambda: lambda image: image / 500 - 1)
     )
 
     fl = (
@@ -139,7 +139,7 @@ def DataLoader(
             ],
             **root.properties,
         )
-        + dt.NormalizeMinMax(-1, 1)
+        + dt.Lambda(lambda: lambda image: image / 1500 - 0.5)
     )
 
     dataset = dt.Combine([bf, fl])

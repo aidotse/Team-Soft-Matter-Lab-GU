@@ -41,7 +41,7 @@ def _as_activation(x):
     if isinstance(x, layers.Layer):
         return x
     else:
-        return layers.Activation(x)
+        return layers.Lambda(x)
 
 
 def _single_layer_call(x, layer, instance_norm, activation):
