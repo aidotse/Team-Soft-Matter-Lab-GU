@@ -11,6 +11,7 @@ TEST_VARIABLES = {
     "batch_size": [8],
     "min_data_size": [200],
     "max_data_size": [400],
+    "image_size": [512, 384, 256]
     "normalization": [{"std": 2250, "mean": 1500}],
     "augmentation_dict": [
         {
@@ -18,7 +19,7 @@ TEST_VARIABLES = {
             "Affine": {"rotate": "lambda: np.random.rand() * 2 * np.pi"},
         },
     ],
-    "metric_weights": [0.0001, 0.0005, 0.001, 0.002, 0.005],
+    "metric_weight": [0.001],
     "actions": [[1]],
 }
 

@@ -170,11 +170,11 @@ def DataLoader(
         )
     else:
         augmented_dataset = dataset
-
+    image_size = kwargs.get("image_size", 256)
     augmented_dataset = dt.Crop(
         augmented_dataset,
-        updates_per_reload=32,
-        crop=(256, 256, 7),
+        updates_per_reload=32 * 256 // image_size,
+        crop=(image_size, image_size, 7),
         corner=lambda: (*np.random.randint(0, 10000, size=2), 0),
     )
 
