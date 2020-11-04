@@ -3,12 +3,8 @@ from os import error
 import tensorflow.keras as keras
 import tensorflow as tf
 import sys
-import os
 import getopt
 import importlib
-
-# Packages
-import numpy as np
 
 # Locals
 import apido

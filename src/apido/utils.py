@@ -124,7 +124,7 @@ def save_training_results(
     print("Saving image...", end="")
 
     try:
-        plot = apido.plot_evaluation(inputs, predictions, targets, ncols=2)
+        plot = apido.plot_evaluation(inputs, targets, predictions, ncols=2)
         plot.savefig(os.path.join(root_path, _image_name), dpi=600)
     except Exception as e:
         print("FAIL!")

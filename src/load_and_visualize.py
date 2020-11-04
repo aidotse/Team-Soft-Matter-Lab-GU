@@ -1,7 +1,6 @@
 import apido
 from tensorflow import keras
 import os
-import numpy as np
 import bmidt
 
 model = bmidt.get_model(0)[1].generator

@@ -1,6 +1,5 @@
 import deeptrack as dt
 import numpy as np
-import scipy
 import itertools
 import glob
 import random
@@ -69,6 +68,7 @@ def DataLoader(
     normalization={},
     training_split=0.85,
     seed=None,
+    actions=[1, 2, 3],
     **kwargs
 ):
     # Define path to the dataset
@@ -123,7 +123,7 @@ def DataLoader(
         index_site=lambda well_site_tuple: ("00" + str(well_site_tuple[1]))[
             -3:
         ],
-        index_action_list_number=[1, 2, 3],
+        index_action_list_number=actions,
         index_z_slide=list(
             range(1, props_per_magnification[magnification]["z_slides"] + 1)
         ),

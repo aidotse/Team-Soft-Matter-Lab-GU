@@ -63,28 +63,21 @@ def plot_results(metric="val_loss"):
 
 
 def plot_evaluation(brightfield, target, prediction, ncols=5):
-    plt.figure(figsize=(6 * ncols, 10))
+    plt.figure(
+        figsize=(2 * target.shape[-1] * ncols, 2.5 * (target.shape[-1] + 1))
+    )
     for col in range(ncols):
-        plt.subplot(4, ncols, col + 1)
+        plt.subplot(1 + target.shape[-1], ncols, col + 1)
         plt.imshow(brightfield[col, :, :, 3], vmin=0, vmax=4000)
         plt.axis("off")
-        plt.subplot(4, ncols * 2, ncols * 2 + 1 + col * 2)
-        plt.imshow(prediction[col, :, :, 0], vmin=0, vmax=3000)
-        plt.axis("off")
-        plt.subplot(4, ncols * 2, ncols * 2 + 2 + col * 2)
-        plt.imshow(target[col, :, :, 0], vmin=0, vmax=3000)
-        plt.axis("off")
-        plt.subplot(4, ncols * 2, ncols * 4 + 1 + col * 2)
-        plt.imshow(prediction[col, :, :, 1], vmin=0, vmax=5000)
-        plt.axis("off")
-        plt.subplot(4, ncols * 2, ncols * 4 + 2 + col * 2)
-        plt.imshow(target[col, :, :, 1], vmin=0, vmax=5000)
-        plt.axis("off")
-        plt.subplot(4, ncols * 2, ncols * 6 + 1 + col * 2)
-        plt.imshow(prediction[col, :, :, 2], vmin=0, vmax=3000)
-        plt.axis("off")
-        plt.subplot(4, ncols * 2, ncols * 6 + 2 + col * 2)
-        plt.imshow(target[col, :, :, 2], vmin=0, vmax=3000)
-        plt.axis("off")
-    plt.subplots_adjust(hspace=0.02, wspace=0.02)
+
+        for row in range(target.shape[-1]):
+            plt.subplot(4, ncols * 2, ncols * (row + 1) * 2 + 1 + col * 2)
+            plt.imshow(prediction[col, :, :, row], vmin=0, vmax=4000)
+            plt.axis("off")
+            plt.subplot(4, ncols * 2, ncols * (row + 1) * 2 + 2 + col * 2)
+            plt.imshow(target[col, :, :, row], vmin=0, vmax=4000)
+            plt.axis("off")
+
+        plt.subplots_adjust(hspace=0.02, wspace=0.02)
     return plt

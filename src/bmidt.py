@@ -1,7 +1,6 @@
 import apido
 import itertools
 import deeptrack as dt
-import numpy as np
 from tensorflow.keras import layers, backend as K
 
 
@@ -20,6 +19,7 @@ TEST_VARIABLES = {
         },
     ],
     "metric_weights": [0.0001, 0.0005, 0.001, 0.002, 0.005],
+    "actions": [[0, 1, 2]],
 }
 
 
@@ -29,12 +29,17 @@ def model_initializer(
     normalization={"mean": 0, "std": 1},
     **kwargs
 ):
+
+    num_actions = len(kwargs.get("actions", [1, 2, 3]))
+
     normalization_layer = layers.Lambda(
         lambda x: K.tanh((x - normalization["mean"]) / normalization["std"])
     )
 
     denormalization_layer = layers.Lambda(
-        lambda x: 0.5 * x * normalization["std"] + normalization["mean"]
+        lambda x: K.clip(
+            0.5 * x * normalization["std"] + normalization["mean"], 0, 65536
+        )
     )
     activation = layers.LeakyReLU(0.2)
 
@@ -62,7 +67,7 @@ def model_initializer(
             generator_base_breadth,
         ),  # number of features in convolutional layer after the U-net
         steps_per_pooling=2,  # 2                                 # number of convolutional layers per pooling layer
-        number_of_outputs=3,  # number of output features
+        number_of_outputs=num_actions,  # number of output features
         output_activation=denormalization_layer,  # activation function on final layer
         compile=False,
         output_kernel_size=1,
@@ -89,7 +94,10 @@ def model_initializer(
     discriminator_pooling_block = lambda f: (lambda x: x)
 
     discriminator = dt.models.convolutional(
-        input_shape=[(None, None, 3), (None, None, 7)],  # shape of the input
+        input_shape=[
+            (None, None, num_actions),
+            (None, None, 7),
+        ],  # shape of the input
         conv_layers_dimensions=(
             16,
             32,
