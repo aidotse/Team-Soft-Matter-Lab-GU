@@ -134,5 +134,8 @@ dmypy.json
 **/checkpoints/*
 **/images/*
 **/predictions/*
+**/generator_checkpoint/*
+**/config.json
+**/comparison.png
 
 .vs/*

@@ -39,8 +39,14 @@ def Augmentation(
     augmented_image = image
     for augmentation in augmentation_list:
         print("With ", augmentation)
+
+        args = augmentation_list[augmentation].copy()
+        for key, val in args.items():
+            if isinstance(val, str):
+                args[key] = eval(val)
+
         augmented_image += getattr(dt, augmentation, default_value)(
-            **augmentation_list.get(augmentation), **kwargs
+            **args, **kwargs
         )
 
     return augmented_image

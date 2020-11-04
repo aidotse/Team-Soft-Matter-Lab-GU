@@ -45,24 +45,6 @@ if index is None:
 indices = apido.parse_index(index)
 
 
-# Create file structure
-PATH_TO_CHECKPOINTS = os.path.abspath(
-    os.path.join("results", username, "checkpoints")
-)
-PATH_TO_MODELS = os.path.abspath(os.path.join("results", username, "models"))
-PATH_TO_CSV = os.path.abspath(os.path.join("results", username, "csv"))
-PATH_TO_IMAGES = os.path.abspath(os.path.join("results", username, "images"))
-PATH_TO_PREDICTIONS = os.path.abspath(
-    os.path.join("results", username, "predictions")
-)
-
-os.makedirs(PATH_TO_IMAGES, exist_ok=True)
-os.makedirs(PATH_TO_PREDICTIONS, exist_ok=True)
-os.makedirs(PATH_TO_CHECKPOINTS, exist_ok=True)
-os.makedirs(PATH_TO_MODELS, exist_ok=True)
-os.makedirs(PATH_TO_CSV, exist_ok=True)
-
-
 user_models = importlib.import_module(script)
 
 for index in indices:
@@ -99,18 +81,9 @@ for index in indices:
         restore_best_weights=True,
     )
 
-    checkpoint_name = apido.get_checkpoint_name(index, name=username)
-    checkpointing = keras.callbacks.ModelCheckpoint(
-        filepath=os.path.join(PATH_TO_CHECKPOINTS, checkpoint_name),
-        save_best_only=True,
-    )
-
     # Define data generators
     print("Grabbing validation data...")
     validation_data = apido.get_validation_set()
-
-    # Start training
-    print("Starting training. Model is saved to: {0}".format(checkpoint_name))
 
     with generator:
         h = model.fit(
@@ -123,37 +96,13 @@ for index in indices:
 
     predictions = model.predict(validation_data[0][:2], batch_size=2)
 
-    plot = apido.plot_evaluation(
-        validation_data[0], validation_data[1], predictions, ncols=2
-    )
-
-    plot.savefig(
-        os.path.join(PATH_TO_IMAGES, checkpoint_name + ".png"), dpi=600
-    )
-
-    # Prediction
-    np.save(
-        os.path.join(PATH_TO_PREDICTIONS, checkpoint_name),
-        [predictions[:2], validation_data[1][:2]],
-    )
-
-    # Log results
-    results = h.history
-    apido.save_history_as_csv(
-        os.path.join(PATH_TO_CSV, checkpoint_name) + ".csv",
-        results,
+    apido.save_training_results(
+        index=index,
+        name=username,
+        history=h.history,
+        model=model.generator,
         headers=headers,
+        inputs=validation_data[0],
+        predictions=predictions,
+        targets=validation_data[1],
     )
-
-    best_loss = np.min(results["val_loss"])
-
-    result_path = os.path.join(
-        PATH_TO_MODELS, "loss{0};{1}".format(best_loss, checkpoint_name)
-    )
-
-    print(
-        "Saving best generator as {0}, best loss was {1}".format(
-            result_path, best_loss
-        )
-    )
-    model.generator.save(result_path)

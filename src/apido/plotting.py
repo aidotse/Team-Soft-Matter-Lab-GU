@@ -2,17 +2,19 @@ import matplotlib.pyplot as plt
 import os
 import apido
 import numpy as np
+import glob
 
 
 def user_results(username):
-    path = os.path.join("./results", username, "csv")
-    os.makedirs(path, exist_ok=True)
-    paths = os.listdir(path)
-    for file in paths:
+    folders = glob.glob(
+        os.path.abspath(os.path.join("./results", username, "**", "*.csv"))
+    )
+
+    for file in folders:
         if not file.endswith(".csv"):
             continue
 
-        _, result = apido.read_csv(os.path.join(path, file))
+        result = apido.read_csv(file)
         yield (file, result)
 
 
@@ -32,6 +34,7 @@ def plot_results(metric="val_loss"):
 
             try:
                 score = np.min(result_dict[metric])
+
                 date = apido.get_date_from_filename(filename)
 
                 time_values.append(date)
@@ -41,14 +44,16 @@ def plot_results(metric="val_loss"):
                 # Skip
                 print(e)
                 pass
-        time_values, scores = zip(*sorted(zip(time_values, scores)))
 
-        scores = list(scores)
-        for idx in range(1, len(scores)):
-            if scores[idx] > scores[idx - 1]:
-                scores[idx] = scores[idx - 1]
+        if time_values and scores:
+            time_values, scores = zip(*sorted(zip(time_values, scores)))
 
-        plt.plot(time_values, scores, marker="o")
+            scores = list(scores)
+            for idx in range(1, len(scores)):
+                if scores[idx] > scores[idx - 1]:
+                    scores[idx] = scores[idx - 1]
+
+            plt.plot(time_values, scores, marker="o")
 
     plt.legend(users)
     plt.xlabel("Date")
@@ -58,7 +63,7 @@ def plot_results(metric="val_loss"):
 
 
 def plot_evaluation(brightfield, target, prediction, ncols=5):
-    plt.figure(figsize=(15, 5))
+    plt.figure(figsize=(6 * ncols, 10))
     for col in range(ncols):
         plt.subplot(4, ncols, col + 1)
         plt.imshow(brightfield[col, :, :, 3], vmin=0, vmax=4000)
