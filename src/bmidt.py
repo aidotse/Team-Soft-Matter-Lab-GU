@@ -15,7 +15,7 @@ TEST_VARIABLES = {
     "max_data_size": [400],
     "image_size": [512],
     "normalization_std": [1750, 2000, 2250],
-    "normalization_mean": 1500,
+    "normalization_mean": [1500],
     "upsample": [2],
     "augmentation_dict": [
         {
