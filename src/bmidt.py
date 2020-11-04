@@ -10,7 +10,7 @@ TEST_VARIABLES = {
     "seed": [1],
     "generator_depth": [4],
     "generator_base_breadth": [16],
-    "batch_size": [4],
+    "batch_size": [8],
     "min_data_size": [200],
     "max_data_size": [400],
     "image_size": [512],
