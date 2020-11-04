@@ -82,17 +82,6 @@ def read_csv(path, delimiter="\t"):
     return result_dict
 
 
-def save_config(path, headers):
-    with open(path, "w") as f:
-        json.dump(headers, f, indent=2)
-
-
-def load_config(path, headers):
-    with open(path, "r") as f:
-        res = json.load(f)
-    return res
-
-
 _folder_struct = "loss={0}_{1}_model_{2}"
 _model_name = "generator_checkpoint"
 _csv_name = "training_history.csv"
@@ -135,6 +124,17 @@ def save_training_results(
         return
 
     print(" OK!")
+
+
+def save_config(path, headers):
+    with open(path, "w") as f:
+        json.dump(headers, f, indent=2)
+
+
+def load_config(path):
+    with open(os.path.join(path, _config_name), "r") as f:
+        res = json.load(f)
+    return res
 
 
 def get_datestring(dtime=None):
