@@ -125,7 +125,7 @@ def model_initializer(
         discriminator_optimizer=Adam(lr=0.0002, beta_1=0.5),
         assemble_loss=["mse", apido.combined_metric()],
         assemble_optimizer=Adam(lr=0.0002, beta_1=0.5),
-        assemble_loss_weights=[1, 0.001],
+        assemble_loss_weights=[1, kwargs.get("metric_weight", 0.001)],
     )
 
     return model

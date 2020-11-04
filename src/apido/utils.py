@@ -1,3 +1,4 @@
+from glob import glob
 import json
 import re
 import os
@@ -5,6 +6,8 @@ import csv
 import datetime
 import numpy as np
 import itertools
+
+from tensorflow import keras
 
 
 import apido
@@ -213,3 +216,34 @@ def get_user_name():
             if dirname in ("user", "User", "Users", "users"):
                 return here[idx + 1]
         return "unknown"
+
+
+def get_folder_from_specifier(specifier, name="**"):
+
+    path = os.path.abspath(
+        os.path.join("./results", name, "/*" + specifier + "*")
+    )
+    folders = glob.glob(path)
+
+    if not folders:
+        raise IOError("No path matching glob {0} found.".format(path))
+    if len(folders) > 0:
+        raise ValueError(
+            "Non-unique glob specifier {0}. Couldn't separate between: {1}".format(
+                path, ", ".join(folders)
+            )
+        )
+
+    return folders[0]
+
+
+def load_model(folder):
+
+    assert os.path.exists(folder), "Folder {0} does not exist".format(folder)
+
+    model_path = os.path.join(folder, _model_name)
+    assert os.path.exists(
+        model_path
+    ), "Folder {0} does not contain a model".format(folder)
+
+    return keras.models.load_model(model_path, compile=False)
