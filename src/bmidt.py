@@ -7,64 +7,19 @@ from tensorflow.keras import layers, backend as K
 
 TEST_VARIABLES = {
     "seed": [1],
-    "generator_depth": [4, 5],
+    "generator_depth": [4],
     "generator_base_breadth": [16],
     "batch_size": [8],
     "min_data_size": [200],
     "max_data_size": [400],
     "normalization": [{"std": 2250, "mean": 1500}],
     "augmentation_dict": [
-        {},
-        {"FlipLR": {}},
         {
             "FlipLR": {},
             "Affine": {"rotate": lambda: np.random.rand() * 2 * np.pi},
         },
-        {
-            "FlipLR": {},
-            "Affine": {
-                "rotate": lambda: np.random.rand() * 2 * np.pi,
-                "scale": lambda: np.random.rand() * 0.2 + 0.9,
-            },
-        },
-        {
-            "FlipLR": {},
-            "Affine": {
-                "rotate": lambda: np.random.rand() * 2 * np.pi,
-                "shear": lambda: np.random.rand() * 0.1 - 0.05,
-            },
-        },
-        {
-            "FlipLR": {},
-            "Affine": {
-                "rotate": lambda: np.random.rand() * 2 * np.pi,
-            },
-            "ElasticTransformation": {
-                "alpha": lambda: np.random.rand() * 80,
-                "sigma": 7,
-            },
-        },
-        {
-            "FlipLR": {},
-            "Affine": {
-                "rotate": lambda: np.random.rand() * 2 * np.pi,
-                "shear": lambda: np.random.rand() * 0.1 - 0.05,
-                "scale": lambda: np.random.rand() * 0.2 + 0.9,
-            },
-        },
-        {
-            "FlipLR": {},
-            "Affine": {
-                "rotate": lambda: np.random.rand() * 2 * np.pi,
-                "shear": lambda: np.random.rand() * 0.1 - 0.05,
-                "scale": lambda: np.random.rand() * 0.2 + 0.9,
-            },
-            "ElasticTransformation": {
-                "alpha": lambda: np.random.rand() * 80,
-                "sigma": 7,
-            },
-        },
     ],
+    "metric_weights": [0.0001, 0.0005, 0.001, 0.002, 0.005],
 }
 
 
@@ -134,7 +89,7 @@ def model_initializer(
     discriminator_pooling_block = lambda f: (lambda x: x)
 
     discriminator = dt.models.convolutional(
-        input_shape=[(256, 256, 3), (256, 256, 7)],  # shape of the input
+        input_shape=[(None, None, 3), (None, None, 7)],  # shape of the input
         conv_layers_dimensions=(
             16,
             32,
@@ -160,7 +115,6 @@ def model_initializer(
         discriminator=discriminator,
         discriminator_loss="mse",
         discriminator_optimizer=Adam(lr=0.0002, beta_1=0.5),
-        discriminator_metrics="accuracy",
         assemble_loss=["mse", apido.combined_metric()],
         assemble_optimizer=Adam(lr=0.0002, beta_1=0.5),
         assemble_loss_weights=[1, 0.001],

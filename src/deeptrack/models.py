@@ -382,7 +382,7 @@ def UNet(
     # Output step
     for conv_layer_dimension in output_conv_layers_dimensions:
         layer = output_convolution_block(conv_layer_dimension)(layer)
-    
+
     output_layer = layers.Conv2D(
         number_of_outputs,
         kernel_size=output_kernel_size,
@@ -576,8 +576,6 @@ class cgan(tf.keras.Model):
 
         # Compute data and labels
         batch_x, batch_y = data
-        shape = (tf.shape(batch_x)[0], *self.discriminator.output.shape[1:])
-        valid, fake = tf.ones(shape), tf.zeros(shape)
         gen_imgs = self.generator(batch_x)
 
         # Train the discriminator
@@ -585,6 +583,8 @@ class cgan(tf.keras.Model):
             # Train in two steps
             disc_pred_1 = self.discriminator([batch_y, batch_x])
             disc_pred_2 = self.discriminator([gen_imgs, batch_x])
+            shape = tf.shape(disc_pred_1)
+            valid, fake = tf.ones(shape), tf.zeros(shape)
             d_loss = (
                 self.discriminator.compiled_loss(disc_pred_1, valid)
                 + self.discriminator.compiled_loss(disc_pred_2, fake)
