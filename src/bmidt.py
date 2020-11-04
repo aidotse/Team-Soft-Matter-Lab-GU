@@ -1,22 +1,31 @@
+import sys
 import apido
 import itertools
 import deeptrack as dt
 from tensorflow.keras import layers, backend as K
+import numpy as np
 
 
 TEST_VARIABLES = {
     "seed": [1],
     "generator_depth": [4],
     "generator_base_breadth": [16],
-    "batch_size": [8],
+    "batch_size": [4],
     "min_data_size": [200],
     "max_data_size": [400],
-    "image_size": [512, 384, 256]
-    "normalization": [{"std": 2250, "mean": 1500}],
+    "image_size": [512],
+    "normalization": [{"std": 1750, "mean": 1500}],
+    "upsample": [2],
     "augmentation_dict": [
         {
             "FlipLR": {},
-            "Affine": {"rotate": "lambda: np.random.rand() * 2 * np.pi"},
+            "Affine": {
+                "rotate": "lambda: np.random.rand() * 2 * np.pi",
+            },
+            "ElasticTransformation": {
+                "alpha": "lambda: np.random.rand() * 80",
+                "sigma": "lambda: np.random.rand() * 1 + 7",
+            },
         },
     ],
     "metric_weight": [0.001],
@@ -28,6 +37,7 @@ def model_initializer(
     generator_depth,
     generator_base_breadth,
     normalization={"mean": 0, "std": 1},
+    upsample=1,
     **kwargs
 ):
 
@@ -36,12 +46,28 @@ def model_initializer(
     normalization_layer = layers.Lambda(
         lambda x: K.tanh((x - normalization["mean"]) / normalization["std"])
     )
-
-    denormalization_layer = layers.Lambda(
-        lambda x: K.clip(
-            0.5 * x * normalization["std"] + normalization["mean"], 0, 65536
+    if not upsample or upsample == 1:
+        denormalization_layer = layers.Lambda(
+            lambda x: K.clip(
+                0.5 * x * normalization["std"] + normalization["mean"],
+                0,
+                65536,
+            )
         )
-    )
+    else:
+        denormalization_layer = layers.Lambda(
+            lambda x: K.pool2d(
+                K.clip(
+                    0.5 * x * normalization["std"] + normalization["mean"],
+                    0,
+                    65536,
+                ),
+                (upsample,) * 2,
+                strides=(2, 2),
+                pool_mode="avg",
+                padding="same",
+            )
+        )
     activation = layers.LeakyReLU(0.2)
 
     convolution_block = dt.layers.ConvolutionalBlock(
@@ -55,6 +81,13 @@ def model_initializer(
         kernel_size=3, instance_norm=True, activation=activation
     )
 
+    upsample_block = dt.layers.StaticUpsampleBlock(
+        kernel_size=3,
+        instance_norm=True,
+        activation=activation,
+        with_conv=False,
+    )
+
     generator = dt.models.unet(
         input_shape=(None, None, 7),  # shape of the input
         conv_layers_dimensions=list(
@@ -64,22 +97,25 @@ def model_initializer(
             generator_base_breadth * 2 ** (generator_depth - 1),
         ),  # number of features at the base of the unet
         output_conv_layers_dimensions=(
-            generator_base_breadth,
-            generator_base_breadth,
+            8,
+            4,
         ),  # number of features in convolutional layer after the U-net
         steps_per_pooling=2,  # 2                                 # number of convolutional layers per pooling layer
         number_of_outputs=num_actions,  # number of output features
         output_activation=denormalization_layer,  # activation function on final layer
         compile=False,
         output_kernel_size=1,
+        extra_upsample_amount=(2,) if upsample == 2 else (,),
         input_layer=normalization_layer,
         encoder_convolution_block=convolution_block,
         decoder_convolution_block=convolution_block,
         base_convolution_block=base_block,
         pooling_block=pooling_block,
-        upsampling_block=deconvolution_block,
+        upsampling_block=upsample_block,
         output_convolution_block=convolution_block,
     )
+
+    print(generator.predict(np.zeros((1, 256, 256, 7))).shape)
 
     discriminator_convolution_block = dt.layers.ConvolutionalBlock(
         kernel_size=(4, 4),

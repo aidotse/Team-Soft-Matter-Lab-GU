@@ -290,6 +290,7 @@ def UNet(
     steps_per_pooling=1,
     number_of_outputs=1,
     output_kernel_size=3,
+    extra_upsample_amount=(),
     output_activation=None,
     loss=nd_mean_absolute_error,
     input_layer=None,
@@ -382,6 +383,9 @@ def UNet(
     # Output step
     for conv_layer_dimension in output_conv_layers_dimensions:
         layer = output_convolution_block(conv_layer_dimension)(layer)
+
+    for conv_layer_dimension in extra_upsample_amount:
+        layer = upsampling_block(conv_layer_dimension)(layer)
 
     output_layer = layers.Conv2D(
         number_of_outputs,

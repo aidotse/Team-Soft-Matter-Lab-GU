@@ -229,6 +229,7 @@ def StaticUpsampleBlock(
     kernel_size=(1, 1),
     strides=1,
     padding="same",
+    with_conv=True,
     **kwargs
 ):
     """A single no-trainable 2d deconvolutional layer.
@@ -252,6 +253,7 @@ def StaticUpsampleBlock(
     def Layer(filters, **kwargs_inner):
         kwargs_inner.update(kwargs)
         layer = layers.UpSampling2D(size=size, interpolation=interpolation)
+
         conv = layers.Conv2D(
             filters,
             kernel_size=kernel_size,
@@ -262,9 +264,12 @@ def StaticUpsampleBlock(
 
         def call(x):
             y = layer(x)
-            return _single_layer_call(
-                y, conv, _instance_norm(instance_norm, filters), activation
-            )
+            if with_conv:
+                return _single_layer_call(
+                    y, conv, _instance_norm(instance_norm, filters), activation
+                )
+            else:
+                return layer(x)
 
         return call
 
