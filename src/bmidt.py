@@ -105,7 +105,7 @@ def model_initializer(
         output_activation=denormalization_layer,  # activation function on final layer
         compile=False,
         output_kernel_size=1,
-        extra_upsample_amount=(2,) if upsample == 2 else (,),
+        extra_upsample_amount=(2,) if upsample == 2 else (),
         input_layer=normalization_layer,
         encoder_convolution_block=convolution_block,
         decoder_convolution_block=convolution_block,
