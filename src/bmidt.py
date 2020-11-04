@@ -10,11 +10,12 @@ TEST_VARIABLES = {
     "seed": [1],
     "generator_depth": [4],
     "generator_base_breadth": [16],
-    "batch_size": [8],
+    "batch_size": [8, 12],
     "min_data_size": [200],
     "max_data_size": [400],
     "image_size": [512],
-    "normalization": [{"std": 1750, "mean": 1500}],
+    "normalization_std": [1750, 2000, 2250],
+    "normalization_mean": 1500,
     "upsample": [2],
     "augmentation_dict": [
         {
@@ -36,7 +37,8 @@ TEST_VARIABLES = {
 def model_initializer(
     generator_depth,
     generator_base_breadth,
-    normalization={"mean": 0, "std": 1},
+    normalization_mean=0,
+    normalization_std=1,
     upsample=1,
     **kwargs
 ):
@@ -44,12 +46,12 @@ def model_initializer(
     num_actions = len(kwargs.get("actions", [1, 2, 3]))
 
     normalization_layer = layers.Lambda(
-        lambda x: K.tanh((x - normalization["mean"]) / normalization["std"])
+        lambda x: K.tanh((x - normalization_mean) / normalization_std)
     )
     if not upsample or upsample == 1:
         denormalization_layer = layers.Lambda(
             lambda x: K.clip(
-                0.5 * x * normalization["std"] + normalization["mean"],
+                0.5 * x * normalization_std + normalization_mean,
                 0,
                 65536,
             )
@@ -58,7 +60,7 @@ def model_initializer(
         denormalization_layer = layers.Lambda(
             lambda x: K.pool2d(
                 K.clip(
-                    0.5 * x * normalization["std"] + normalization["mean"],
+                    0.5 * x * normalization_std + normalization_mean,
                     0,
                     65536,
                 ),

@@ -88,6 +88,7 @@ for index in indices:
             callbacks=[early_stopping],
             validation_data=validation_data,
             validation_batch_size=4,
+            steps_per_epoch=20,
         )
 
     predictions = model.predict(validation_data[0][:2], batch_size=2)
