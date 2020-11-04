@@ -79,7 +79,11 @@ def plot_evaluation(brightfield, target, prediction, ncols=5):
             )
             plt.imshow(prediction[col, :, :, row], vmin=0, vmax=4000)
             plt.axis("off")
-            plt.subplot(4, ncols * 2, ncols * (row + 1) * 2 + 2 + col * 2)
+            plt.subplot(
+                1 + target.shape[-1],
+                ncols * 2,
+                ncols * (row + 1) * 2 + 2 + col * 2,
+            )
             plt.imshow(target[col, :, :, row], vmin=0, vmax=4000)
             plt.axis("off")
 
