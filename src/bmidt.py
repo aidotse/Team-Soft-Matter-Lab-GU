@@ -19,7 +19,7 @@ TEST_VARIABLES = {
         },
     ],
     "metric_weights": [0.0001, 0.0005, 0.001, 0.002, 0.005],
-    "actions": [[0, 1, 2]],
+    "actions": [[1]],
 }
 
 
