@@ -157,7 +157,7 @@ def DataLoader(
         + dt.Lambda(lambda: lambda i: i * 1.0)
     )
 
-    dataset = dt.Combine([bf, fl])
+    dataset = dt.Combine([bf, fl]) + dt.Affine(scale=0.5)
 
     validation_dataset = dataset + dt.CropToMultiplesOf(
         multiple=(64, 64, None),

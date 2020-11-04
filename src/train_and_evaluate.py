@@ -87,7 +87,7 @@ for index in indices:
             epochs=args["epochs"],
             callbacks=[early_stopping],
             validation_data=validation_data,
-            validation_batch_size=4,
+            validation_batch_size=2,
             steps_per_epoch=20,
         )
 

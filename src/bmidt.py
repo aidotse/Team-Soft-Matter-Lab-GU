@@ -10,13 +10,13 @@ TEST_VARIABLES = {
     "seed": [1],
     "generator_depth": [4],
     "generator_base_breadth": [16],
-    "batch_size": [8, 12],
+    "batch_size": [8],
     "min_data_size": [200],
     "max_data_size": [400],
-    "image_size": [512],
-    "normalization_std": [1750, 2000, 2250],
+    "image_size": [256],
+    "normalization_std": [1750],
     "normalization_mean": [1500],
-    "upsample": [2],
+    "upsample": [1],
     "augmentation_dict": [
         {
             "FlipLR": {},
@@ -60,7 +60,7 @@ def model_initializer(
         denormalization_layer = layers.Lambda(
             lambda x: K.pool2d(
                 K.clip(
-                    0.5 * x * normalization_std + normalization_mean,
+                    x * normalization_std + normalization_mean,
                     0,
                     65536,
                 ),
