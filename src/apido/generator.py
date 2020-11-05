@@ -42,7 +42,7 @@ def get_generator(
     return dt.utils.safe_call(dt.generators.ContinuousGenerator, **args)
 
 
-def get_validation_set(size=_VALIDATION_SET_SIZE):
+def get_validation_set(size=_VALIDATION_SET_SIZE, convert_to_array=True):
     data_loader = conf["feature"]
 
     data = []
@@ -52,5 +52,7 @@ def get_validation_set(size=_VALIDATION_SET_SIZE):
         output = data_loader.resolve()
         data.append(batch_function(output))
         labels.append(label_function(output))
-
-    return np.array(data), np.array(labels)
+    if convert_to_array:
+        return np.array(data), np.array(labels)
+    else:
+        return data, labels

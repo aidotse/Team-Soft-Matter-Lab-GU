@@ -129,35 +129,27 @@ def DataLoader(
         ),
     )
 
-    bf = (
-        root
-        + dt.LoadImage(
-            path=lambda index_well, index_site, index_z_slide: [
-                load_string_struct.format(
-                    path_to_dataset, index_well, index_site, 4, z_slide
-                )
-                for z_slide in index_z_slide
-            ],
-            **root.properties,
-        )
-        + dt.Lambda(lambda: lambda i: i * 1.0)
+    bf = root + dt.LoadImage(
+        path=lambda index_well, index_site, index_z_slide: [
+            load_string_struct.format(
+                path_to_dataset, index_well, index_site, 4, z_slide
+            )
+            for z_slide in index_z_slide
+        ],
+        **root.properties,
     )
 
-    fl = (
-        root
-        + dt.LoadImage(
-            path=lambda index_well, index_site, index_action_list_number: [
-                load_string_struct.format(
-                    path_to_dataset, index_well, index_site, action_number, 1
-                )
-                for action_number in index_action_list_number
-            ],
-            **root.properties,
-        )
-        + dt.Lambda(lambda: lambda i: i * 1.0)
+    fl = root + dt.LoadImage(
+        path=lambda index_well, index_site, index_action_list_number: [
+            load_string_struct.format(
+                path_to_dataset, index_well, index_site, action_number, 1
+            )
+            for action_number in index_action_list_number
+        ],
+        **root.properties,
     )
 
-    dataset = dt.Combine([bf, fl]) + dt.Affine(scale=0.5)
+    dataset = dt.Combine([bf, fl]) + dt.Lambda(lambda: lambda i: i * 1.0)
 
     validation_dataset = dataset + dt.CropToMultiplesOf(
         multiple=(64, 64, None),
@@ -170,6 +162,7 @@ def DataLoader(
         )
     else:
         augmented_dataset = dataset
+
     image_size = kwargs.get("image_size", 256)
     augmented_dataset = dt.Crop(
         augmented_dataset,

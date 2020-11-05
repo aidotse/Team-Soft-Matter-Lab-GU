@@ -1,4 +1,4 @@
-from glob import glob
+import glob
 import json
 import re
 import os
@@ -221,13 +221,16 @@ def get_user_name():
 def get_folder_from_specifier(specifier, name="**"):
 
     path = os.path.abspath(
-        os.path.join("./results", name, "/*" + specifier + "*")
+        "./results/{name}/*{specifier}*/".format(
+            name=name, specifier=specifier
+        )
     )
+
     folders = glob.glob(path)
 
     if not folders:
         raise IOError("No path matching glob {0} found.".format(path))
-    if len(folders) > 0:
+    if len(folders) > 1:
         raise ValueError(
             "Non-unique glob specifier {0}. Couldn't separate between: {1}".format(
                 path, ", ".join(folders)

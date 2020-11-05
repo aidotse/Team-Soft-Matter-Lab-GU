@@ -30,7 +30,7 @@ TEST_VARIABLES = {
         },
     ],
     "metric_weight": [0.001],
-    "actions": [[1]],
+    "actions": [[1, 2, 3]],
 }
 
 
