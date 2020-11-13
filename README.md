@@ -63,7 +63,7 @@ On the client computer, go to `10.80.4.52:8888` in a web-browser.
 
 ### Training on 60x data
 
-Launch the notebook named **Train 60x Stainer**.
+Launch the notebook named **Train 60x Virtual Stainer**.
 
 * Set `DATASET_PATH` to the path containing the 60x images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
@@ -72,7 +72,7 @@ Run each cell in order. Under section **4**, cell 16, the execution time of the 
 
 ### Training on 40x data
 
-Launch the notebook named **Train 40x Stainer**.
+Launch the notebook named **Train 40x Virtual Stainer**.
 
 * Set `DATASET_PATH` to the path containing the 60x images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
@@ -80,7 +80,7 @@ Launch the notebook named **Train 40x Stainer**.
 
 ### Training on 20x data
 
-Launch the notebook named **Train 20x Stainer**.
+Launch the notebook named **Train 20x Virtual Stainer**.
 
 * Set `DATASET_PATH` to the path containing the 60x images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
