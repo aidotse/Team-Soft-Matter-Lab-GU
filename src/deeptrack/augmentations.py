@@ -398,7 +398,9 @@ class Affine(Augmentation):
 
         assert (
             image.ndim == 2 or image.ndim == 3
-        ), "Affine only supports 2-dimensional or 3-dimension inputs."
+        ), "Affine only supports 2-dimensional or 3-dimension inputs, got {0}".format(
+            image.ndim
+        )
 
         dx, dy = translate
         fx, fy = scale
@@ -756,17 +758,77 @@ class Pad(Augmentation):
     def get(self, image, px, **kwargs):
 
         padding = []
-        if isinstance(px, int):
+        if callable(px):
+            px = px(image)
+        elif isinstance(px, int):
             padding = [(px, px)] * image.ndom
+
         for idx in range(0, len(px), 2):
             padding.append((px[idx], px[idx + 1]))
 
         while len(padding) < image.ndim:
             padding.append((0, 0))
 
-        return utils.safe_call(
-            np.pad, positional_args=(image, padding), **kwargs
+        return (
+            utils.safe_call(
+                np.pad, positional_args=(image, padding), **kwargs
+            ),
+            padding,
         )
+
+    def _process_and_get(self, images, **kwargs):
+        results = [self.get(image, **kwargs) for image in images]
+        for idx, result in enumerate(results):
+            if isinstance(result, tuple):
+                shape = result[0].shape
+                padding = result[1]
+                de_pad = tuple(
+                    slice(p[0], shape[dim] - p[1])
+                    for dim, p in enumerate(padding)
+                )
+                results[idx] = (
+                    Image(result[0]).merge_properties_from(images[idx]),
+                    {"undo_padding": de_pad},
+                )
+            else:
+                Image(results[idx]).merge_properties_from(images[idx])
+        return results
+
+
+class PadToMultiplesOf(Pad):
+    """Pad images until their height/width is a multiple of a value.
+
+    Parameters
+    ----------
+    multiple : int or tuple of (int or None)
+        Images will be padded until their width is a multiple of
+        this value. If a tuple, it is assumed to be a multiple per axis.
+        A value of None or -1 indicates to skip that axis.
+
+    """
+
+    def __init__(self, multiple=1, **kwargs):
+        def amount_to_pad(image):
+            shape = image.shape
+            multiple = self.multiple.current_value
+
+            if not isinstance(multiple, (list, tuple, np.ndarray)):
+                multiple = (multiple,) * image.ndim
+            new_shape = [0] * (image.ndim * 2)
+            idx = 0
+            for dim, mul in zip(shape, multiple):
+                if mul is not None and mul is not -1:
+                    to_add = -dim % mul
+                    to_add_first = to_add // 2
+                    to_add_after = to_add - to_add_first
+                    new_shape[idx * 2] = to_add_first
+                    new_shape[idx * 2 + 1] = to_add_after
+
+                idx += 1
+
+            return new_shape
+
+        super().__init__(multiple=multiple, px=lambda: amount_to_pad, **kwargs)
 
 
 # TODO: add resizing by rescaling

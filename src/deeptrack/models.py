@@ -12,10 +12,11 @@ RNN, rnn
     Creates and compiles a recurrent neural network.
 """
 
+import tensorflow
 from deeptrack.losses import nd_mean_absolute_error
 from deeptrack.features import Feature
 from deeptrack.layers import as_block
-from tensorflow.keras import models, layers
+from tensorflow.keras import models, layers, backend as K
 import tensorflow as tf
 import numpy as np
 
@@ -290,6 +291,7 @@ def UNet(
     steps_per_pooling=1,
     number_of_outputs=1,
     output_kernel_size=3,
+    extra_upsample_amount=(),
     output_activation=None,
     loss=nd_mean_absolute_error,
     input_layer=None,
@@ -297,6 +299,7 @@ def UNet(
     base_convolution_block="convolutional",
     decoder_convolution_block="convolutional",
     output_convolution_block="convolutional",
+    scale_output=False,
     pooling_block="pooling",
     upsampling_block="deconvolutional",
     **kwargs
@@ -343,14 +346,20 @@ def UNet(
     pooling_block = as_block(pooling_block)
     upsampling_block = as_block(upsampling_block)
 
-    unet_input = layers.Input(input_shape)
+    if isinstance(input_shape, list):
+        network_input = [layers.Input(shape) for shape in input_shape]
+    else:
+        network_input = layers.Input(input_shape)
 
     concat_layers = []
 
-    layer = unet_input
+    layer = network_input
 
     if input_layer:
         layer = input_layer(layer)
+
+    if isinstance(input_shape, list):
+        layers.Concatenate(axis=-1)(layer)
 
     # Downsampling path
     for conv_layer_dimension in conv_layers_dimensions:
@@ -382,7 +391,10 @@ def UNet(
     # Output step
     for conv_layer_dimension in output_conv_layers_dimensions:
         layer = output_convolution_block(conv_layer_dimension)(layer)
-    
+
+    for conv_layer_dimension in extra_upsample_amount:
+        layer = upsampling_block(conv_layer_dimension)(layer)
+
     output_layer = layers.Conv2D(
         number_of_outputs,
         kernel_size=output_kernel_size,
@@ -390,7 +402,10 @@ def UNet(
         padding="same",
     )(layer)
 
-    model = models.Model(unet_input, output_layer)
+    if scale_output:
+        output_layer = ScaleLayer()(output_layer)
+
+    model = models.Model(network_input, output_layer)
 
     return KerasModel(model, loss=loss, **kwargs)
 
@@ -520,6 +535,30 @@ def RNN(
 rnn = RNN
 
 
+class ScaleLayer(layers.Layer):
+    def __init__(self):
+        super().__init__()
+
+        self.A = tensorflow.Variable(
+            initial_value=tensorflow.constant_initializer(value=1)(
+                shape=(1, 1, 1, 3), dtype="float32"
+            ),
+            trainable=True,
+        )
+
+        self.B = tensorflow.Variable(
+            initial_value=tensorflow.constant_initializer(value=1)(
+                shape=(1, 1, 1, 3), dtype="float32"
+            ),
+            trainable=True,
+        )
+
+    def call(self, inputs):
+        return tensorflow.clip_by_value(
+            inputs * self.A * 1750 + self.B * 750, 0, 10000
+        )
+
+
 class cgan(tf.keras.Model):
     def __init__(
         self,
@@ -564,6 +603,9 @@ class cgan(tf.keras.Model):
         self.assemble = tf.keras.models.Model(
             self.model_input, [validity, img]
         )
+
+        self.num_losses = len(assemble_loss)
+
         self.assemble.compile(
             loss=assemble_loss,
             optimizer=assemble_optimizer,
@@ -576,8 +618,6 @@ class cgan(tf.keras.Model):
 
         # Compute data and labels
         batch_x, batch_y = data
-        shape = (tf.shape(batch_x)[0], *self.discriminator.output.shape[1:])
-        valid, fake = tf.ones(shape), tf.zeros(shape)
         gen_imgs = self.generator(batch_x)
 
         # Train the discriminator
@@ -585,6 +625,8 @@ class cgan(tf.keras.Model):
             # Train in two steps
             disc_pred_1 = self.discriminator([batch_y, batch_x])
             disc_pred_2 = self.discriminator([gen_imgs, batch_x])
+            shape = tf.shape(disc_pred_1)
+            valid, fake = tf.ones(shape), tf.zeros(shape)
             d_loss = (
                 self.discriminator.compiled_loss(disc_pred_1, valid)
                 + self.discriminator.compiled_loss(disc_pred_2, fake)
@@ -597,10 +639,19 @@ class cgan(tf.keras.Model):
         )
 
         # Train the assembly
+
         with tf.GradientTape() as tape:
             assemble_output = self.assemble(batch_x)
+
+            generated_image_copies = [assemble_output[1]] * (
+                self.num_losses - 1
+            )
+
+            batch_y_copies = [batch_y] * (self.num_losses - 1)
+
             g_loss = self.assemble.compiled_loss(
-                assemble_output, [valid, batch_y]
+                [assemble_output[0], *generated_image_copies],
+                [valid, *batch_y_copies],
             )
 
         # Compute gradient and apply gradient

@@ -1,5 +1,0 @@
-seed	generator_depth	generator_base_breadth	batch_size	min_data_size	max_data_size	normalization	augmentation_dict	epochs	patience
-1	4	16	8	50	400	{'std': 2250, 'mean': 1500}	{'FlipLR': {}}	2	100
-d_loss	g_loss	mae	val_loss	val_mae
-0.8251492977142334	1.487911343574524	1021.0113525390625	996.388427734375	996.388427734375
-0.7224172949790955	1.340606927871704	954.1051635742188	930.2747802734375	930.2747802734375

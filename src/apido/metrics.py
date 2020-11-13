@@ -1,6 +1,8 @@
 # All metrics
 
 from tensorflow.keras import backend as K
+import tensorflow as tf
+import tensorflow_probability as tfp
 
 
 def mae(P, T):
@@ -38,7 +40,7 @@ def combined_metric(weights=[1, 1, 1, 1]):
 
     def inner(P, T):
         return sum(
-            weight * metric(P, T) for weight, metric in zip(weights, metrics())
+            weight * metric(P, T) for weight, metric in zip(weights, _metrics)
         )
 
     return inner

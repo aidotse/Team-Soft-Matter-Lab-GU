@@ -11,25 +11,20 @@ class TestSequences(unittest.TestCase):
     def test_save_history_as_csv_fail(self):
         self.assertRaises(
             AssertionError,
-            lambda: apido.save_history_as_csv(
-                "save_path.notcsv", {"data": [1, 2, 3]}, {}
-            ),
+            lambda: apido.save_history_as_csv("save_path.notcsv", {}),
         )
 
     def test_save_history_as_csv(self):
         apido.save_history_as_csv(
             "_test_path.csv",
             {"loss": [1, 2, 3], "val_loss": [2, 4]},
-            {"arg1": 1, "arg2": 2},
             delimiter=",",
         )
 
         self.assertTrue(os.path.exists("./_test_path.csv"))
 
-        args, scores = apido.read_csv("_test_path.csv", delimiter=",")
+        scores = apido.read_csv("_test_path.csv", delimiter=",")
         os.unlink("_test_path.csv")
-        self.assertEqual(args["arg1"], "1")
-        self.assertEqual(args["arg2"], "2")
         self.assertEqual(scores["loss"], [1, 2])
         self.assertEqual(scores["val_loss"], [2, 4])
 

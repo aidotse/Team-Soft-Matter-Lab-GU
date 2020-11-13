@@ -1,4 +1,0 @@
-seed	generator_depth	generator_base_breadth	batch_size	min_data_size	max_data_size	normalization	augmentation_dict	epochs	patience
-1	4	16	8	200	400	{'std': 2250, 'mean': 1500}	{}	1	100
-d_loss	g_loss	mae	val_loss	val_mae
-0.6767376661300659	1.3790557384490967	1152.2392578125	1081.1119384765625	1081.1119384765625
