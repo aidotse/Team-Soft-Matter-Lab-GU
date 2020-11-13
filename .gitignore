@@ -137,5 +137,6 @@ dmypy.json
 **/comparison.png
 **/targets/*
 **/local_results/*
+**/results/**/*
 
 .vs/*
