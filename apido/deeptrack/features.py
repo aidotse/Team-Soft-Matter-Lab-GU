@@ -198,8 +198,12 @@ class Feature:
         property_verbosity = global_kwargs.get("property_memorability", 1)
         feature_input["name"] = type(self).__name__
         if self.__property_memorability__ <= property_verbosity:
-            for image in new_list:
-                image.append(feature_input)
+            for index, image in enumerate(new_list):
+                if isinstance(image, tuple):
+                    image[0].append({**feature_input, **image[1]})
+                    new_list[index] = image[0]
+                else:
+                    image.append(feature_input)
 
         # Merge input and new_list
         if self.__list_merge_strategy__ == MERGE_STRATEGY_OVERRIDE:
