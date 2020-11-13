@@ -132,3 +132,11 @@ dmypy.json
 
 **/models/*
 **/checkpoints/*
+**/images/*
+**/predictions/*
+**/comparison.png
+**/targets/*
+**/local_results/*
+**/results/**/*
+
+.vs/*

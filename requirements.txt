@@ -1,6 +1,0 @@
-numpy
-scipy
-scikit-image
-tensorflow
-tensorflow-addons
-matplotlib
