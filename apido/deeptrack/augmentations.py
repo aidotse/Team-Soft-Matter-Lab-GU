@@ -157,8 +157,8 @@ class Augmentation(Feature):
                 )
             else:
                 # DANGEROUS
-                if not isinstance(image_list, Image):
-                    image_list = Image(image_list)
+                # if not isinstance(image_list, Image):
+                image_list = Image(image_list)
 
                 output = self.get(image_list, **kwargs)
 

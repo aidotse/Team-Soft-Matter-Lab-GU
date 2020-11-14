@@ -1,7 +1,6 @@
 # All metrics
 
 from tensorflow.keras import backend as K
-import tensorflow_probability as tfp
 
 
 def mae(P, T):
