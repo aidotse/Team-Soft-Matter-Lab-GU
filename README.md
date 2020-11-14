@@ -1,4 +1,4 @@
-# ApidChallenge
+# Adipocyte Cell Challenge
 
 ## Instructions for staining
 
