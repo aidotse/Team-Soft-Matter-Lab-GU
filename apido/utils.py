@@ -242,6 +242,9 @@ def get_folder_from_specifier(specifier, name="**"):
 
 
 def load_model(folder):
+    import warnings
+
+    warnings.filterwarnings("ignore")
 
     folder = os.path.normpath(folder)
 
@@ -297,4 +300,5 @@ def load_model(folder):
 
     model = keras.models.Model(model_input, stage_2_output)
 
+    warnings.filterwarnings("default")
     return model
