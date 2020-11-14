@@ -4,9 +4,7 @@
 
 ### Launching docker
 
-Launch the docker container by running `docker run -it -p 8890:8890 -v /home/group1/:/workspace  notebooks`
-
-Move into theteam folder with `cd Team-Soft-Matter-Lab-Gu`
+Launch the docker container by running `docker run -it --rm -p 8890:8890 -v /home/group1/:/workspace/Team-Soft-Matter-Lab-GU  notebooks`
 
 ### Starting Jupyter Server
 
