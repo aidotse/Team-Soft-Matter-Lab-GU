@@ -4,15 +4,15 @@
 
 ### Launching docker
 
-Launch the docker container by running `TBD`
+Launch the docker container by running `docker run -it -p 8890:8890 -v /home/group1/:/workspace  notebooks`
 
 Move into theteam folder with `cd Team-Soft-Matter-Lab-Gu`
 
 ### Starting Jupyter Server
 
-Run `jupyter notebook --port=8888`
+Run `jupyter notebook --port=8890`
 
-On the client computer, go to `10.80.4.52:8888` in a web-browser.
+On the client computer, go to `10.80.4.52:8890` in a web-browser.
 
 ### Predicting on 60X data
 
