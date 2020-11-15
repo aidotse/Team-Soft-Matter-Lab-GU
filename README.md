@@ -4,7 +4,7 @@
 
 ### Launching docker
 
-Launch the docker container by running `docker run -it --rm -p 8890:8890 -v /home/group1/:/workspace/Team-Soft-Matter-Lab-GU  notebooks`
+Launch the docker container by running `docker run -it --rm -p 8890:8890 -v /home/group1/:/workspace/ notebooks`
 
 ### Starting Jupyter Server
 
@@ -14,14 +14,14 @@ On the client computer, go to `10.80.4.52:8890` in a web-browser.
 
 If prompted, enter the key shown by jupyter notebook on the host.
 
+**REMEMBER TO SHUT DOWN THE KERNEL WHEN LAUNCHINg A NEW NOTEBOOK**
+
 ### Predicting on 60X data
 
 Launch the notebook named **Stain 60X Data**.
 
 * Set `DATASET_PATH` to the path containing the 60X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
-* Set `WELLS` to `["B02"] * 12`
-* Set `SITES` to `range(1, 13)`
 
 Run each cell in order. Under section **4**, cell 16, the execution time of the model is shown.
 
@@ -31,8 +31,6 @@ Launch the notebook named **Stain 40X Data**.
 
 * Set `DATASET_PATH` to the path containing the 40X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
-* Set `WELLS` to `["B02"] * 12`
-* Set `SITES` to `range(1, 9)`
 
 Run each cell in order. Under section **4**, cell 16, the execution time of the model is shown.
 
@@ -42,8 +40,6 @@ Launch the notebook named **Stain 20X Data**.
 
 * Set `DATASET_PATH` to the path containing the 20X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
-* Set `WELLS` to `["B02"] * 12`
-* Set `SITES` to `range(1, 7)`
 
 Run each cell in order. Under section **4**, cell 16, the execution time of the model is shown.
 
@@ -51,15 +47,14 @@ Run each cell in order. Under section **4**, cell 16, the execution time of the 
 
 ### Launching docker
 
-Launch the docker container by running `TBD`
-
-Move into theteam folder with `cd Team-Soft-Matter-Lab-Gu`
+Launch the docker container by running `docker run -it --rm -p 8890:8890 -v /home/group1/:/workspace/Team-Soft-Matter-Lab-GU  notebooks`
 
 ### Starting Jupyter Server
 
-Run `jupyter notebook --port=8888`
+Run `jupyter notebook --port=8890`
 
-On the client computer, go to `10.80.4.52:8888` in a web-browser.
+On the client computer, go to `10.80.4.52:8890` in a web-browser.
+If prompted, enter the key shown by jupyter notebook on the host.
 
 ### Training on 60X data
 
