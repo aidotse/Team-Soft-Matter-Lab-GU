@@ -23,7 +23,7 @@ Launch the notebook named **Stain 60X Data**.
 * Set `DATASET_PATH` to the path containing the 60X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
-Run each cell in order. Under section **4**, cell 16, the execution time of the model is shown.
+Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
 
 ### Predicting on 40X data
 
@@ -32,7 +32,7 @@ Launch the notebook named **Stain 40X Data**.
 * Set `DATASET_PATH` to the path containing the 40X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
-Run each cell in order. Under section **4**, cell 16, the execution time of the model is shown.
+Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
 
 ### Predicting on 20X data
 
@@ -41,7 +41,7 @@ Launch the notebook named **Stain 20X Data**.
 * Set `DATASET_PATH` to the path containing the 20X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
-Run each cell in order. Under section **4**, cell 16, the execution time of the model is shown.
+Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
 
 ## Instructions for training
 
@@ -63,7 +63,6 @@ Launch the notebook named **Train 60X Virtual Stainer**.
 * Set `DATASET_PATH` to the path containing the 60X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
-Run each cell in order. Under section **4**, cell 16, the execution time of the model is shown.
 
 ### Training on 40X data
 
