@@ -14,7 +14,7 @@ On the client computer, go to `10.80.4.52:8890` in a web-browser.
 
 If prompted, enter the key shown by jupyter notebook on the host.
 
-**REMEMBER TO SHUT DOWN THE KERNEL WHEN LAUNCHINg A NEW NOTEBOOK**
+**REMEMBER TO SHUT DOWN THE KERNEL WHEN LAUNCHING A NEW NOTEBOOK**
 
 ### Predicting on 60X data
 
