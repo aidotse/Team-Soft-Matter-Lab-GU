@@ -31,7 +31,7 @@ http://hostname:{port}/?token={key}
 
 You may need to scroll up to see it.
 
-Copy that address, replacing hostname with 10.80.4.52, and paste it into a web browser on a
+Copy that address, replacing hostname with 10.80.4.52, and paste it into a web browser on the local computer.
 
 An example url would be:
 
