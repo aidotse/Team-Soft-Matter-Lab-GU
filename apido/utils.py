@@ -108,43 +108,6 @@ _config_name = "config.json"
 _image_name = "comparison.png"
 
 
-def save_training_results(
-    index, name, history, model, headers, inputs, predictions, targets
-):
-    loss = np.min(history["val_loss"])
-    datestr = get_datestring()
-    result_path = _folder_struct.format(loss, datestr, index)
-
-    root_path = os.path.abspath(os.path.join("./results", name, result_path))
-
-    print("Saving to", root_path)
-    os.makedirs(root_path, exist_ok=True)
-
-    print("Saving model...", end="")
-    model.save(os.path.join(root_path, _model_name))
-    print(" OK!")
-
-    print("Saving csv...", end="")
-    save_history_as_csv(os.path.join(root_path, _csv_name), history=history)
-    print(" OK!")
-
-    print("Saving config...", end="")
-    save_config(os.path.join(root_path, _config_name), headers)
-    print(" OK!")
-
-    print("Saving image...", end="")
-
-    try:
-        plot = apido.plot_evaluation(inputs, targets, predictions, ncols=2)
-        plot.savefig(os.path.join(root_path, _image_name), dpi=600)
-    except Exception as e:
-        print("FAIL!")
-        print(e)
-        return
-
-    print(" OK!")
-
-
 def save_config(path, headers):
     """Saves a config file as JSON
 
