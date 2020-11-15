@@ -17,6 +17,10 @@ Check if the container is already running. Run `docker ps` and look for a contai
 #### If the container is already running
 Attach to the container by running `docker exec -it notebooks sh`
 
+#### If the container is stopped
+
+Start the container by running `docker start notebooks`
+
 #### If the container is not running
 Launch the docker container by running `docker run -it --name notebooks --rm -p 8890:8890 -v /home/group1/:/workspace/ notebooks`
 
@@ -27,11 +31,11 @@ Run `jupyter notebook --port=8890`
 
 This will return an address in the form:
 
-http://hostname:{port}/?token={key}
+http://127.0.0.1:{port}/?token={key}
 
 You may need to scroll up to see it.
 
-Copy that address, replacing hostname with 10.80.4.52, and paste it into a web browser on the local computer.
+Copy that address, replacing 127.0.0.1 with 10.80.4.52, and paste it into a web browser on the local computer.
 
 An example url would be:
 
