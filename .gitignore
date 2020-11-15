@@ -130,7 +130,6 @@ dmypy.json
 
 # Extras
 
-**/models/*
 **/checkpoints/*
 **/images/*
 **/predictions/*
