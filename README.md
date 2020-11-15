@@ -2,9 +2,17 @@
 
 ## Instructions for staining
 
+Move into the Team-Soft-Matter-Lab directory.
+
+### Building the container
+
+Only needed on a new computer system.
+
+Run `docker build . -t notebooks`
+
 ### Launching docker
 
-First, check if the container is already running. Run `docker ps` and look for a container with IMAGE and NAMES _notebooks_
+Check if the container is already running. Run `docker ps` and look for a container with IMAGE and NAMES _notebooks_
 
 #### If the container is already running
 Attach to the container by running `docker exec -it notebooks sh`
@@ -13,16 +21,21 @@ Attach to the container by running `docker exec -it notebooks sh`
 Launch the docker container by running `docker run -it --name notebooks --rm -p 8890:8890 -v /home/group1/:/workspace/ notebooks`
 
 
-
 ### Starting Jupyter Server
 
 Run `jupyter notebook --port=8890`
 
-On the client computer, go to `10.80.4.52:8890` in a web-browser.
+This will return an address in the form:
 
-When prompted, enter the key shown by jupyter notebook on the host ("http://hostname:8888/?token={KEY HERE}"). You may need to scroll up in the terminal to find it.
+http://hostname:{port}/?token={key}
 
+You may need to scroll up to see it.
 
+Copy that address, replacing hostname with 10.80.4.52, and paste it into a web browser on a
+
+An example url would be:
+
+http://10.80.4.52:8890/?token=abcdefghijklmnopqrst0123456789abcdefghijklmnopqr
 
 ### Predicting on 60X data
 
