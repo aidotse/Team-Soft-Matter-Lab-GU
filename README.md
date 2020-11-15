@@ -60,7 +60,7 @@ Launch the notebook named **Stain 40X Data**.
 
 Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
 
-![#f03c15](**Make sure to shut down the kernel BEFORE moving on to the next notebook**)
+**Make sure to shut down the kernel BEFORE moving on to the next notebook**
 This is done by pressing kernel, followed by shutdown.
 
 ### Predicting on 20X data
