@@ -35,11 +35,11 @@ http://127.0.0.1:{port}/?token={key}
 
 You may need to scroll up to see it.
 
-Copy that address, replacing 127.0.0.1 with 10.80.4.52, and paste it into a web browser on the local computer.
+Copy that address, remove `http://`, replace 127.0.0.1 with 10.80.4.52, and paste it into a web browser on the local computer.
 
 An example url would be:
 
-http://10.80.4.52:8890/?token=abcdefghijklmnopqrst0123456789abcdefghijklmnopqr
+10.80.4.52:8890/?token=abcdefghijklmnopqrst0123456789abcdefghijklmnopqr
 
 ### Predicting on 60X data
 
