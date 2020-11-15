@@ -20,11 +20,13 @@ Run `jupyter notebook --port=8890`
 
 On the client computer, go to `10.80.4.52:8890` in a web-browser.
 
-If prompted, enter the key shown by jupyter notebook on the host.
+When prompted, enter the key shown by jupyter notebook on the host ("http://hostname:8888/?token={KEY HERE}"). You may need to scroll up in the terminal to find it.
 
-**REMEMBER TO SHUT DOWN THE KERNEL WHEN LAUNCHING A NEW NOTEBOOK**
+
 
 ### Predicting on 60X data
+
+
 
 Launch the notebook named **Stain 60X Data**.
 
@@ -32,6 +34,9 @@ Launch the notebook named **Stain 60X Data**.
 * Set `OUTPUT_PATH` in section 1.2 to the desired output path (can be the same as `DATASET_PATH`)
 
 Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
+
+![#f03c15](**Make sure to shut down the kernel BEFORE moving on to the next notebook**)
+This is done by pressing kernel, followed by shutdown.
 
 ### Predicting on 40X data
 
@@ -42,6 +47,9 @@ Launch the notebook named **Stain 40X Data**.
 
 Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
 
+![#f03c15](**Make sure to shut down the kernel BEFORE moving on to the next notebook**)
+This is done by pressing kernel, followed by shutdown.
+
 ### Predicting on 20X data
 
 Launch the notebook named **Stain 20X Data**.
@@ -50,6 +58,9 @@ Launch the notebook named **Stain 20X Data**.
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
 Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
+
+![#f03c15](**Make sure to shut down the kernel BEFORE moving on to the next notebook**)
+This is done by pressing kernel, followed by shutdown.
 
 ## Instructions for training
 
@@ -71,6 +82,8 @@ Launch the notebook named **Train 60X Virtual Stainer**.
 * Set `DATASET_PATH` to the path containing the 60X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
+![#f03c15](**Make sure to shut down the kernel BEFORE moving on to the next notebook**)
+This is done by pressing kernel, followed by shutdown.
 
 ### Training on 40X data
 
@@ -79,6 +92,8 @@ Launch the notebook named **Train 40X Virtual Stainer**.
 * Set `DATASET_PATH` to the path containing the 40X input images
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
+![#f03c15](**Make sure to shut down the kernel BEFORE moving on to the next notebook**)
+This is done by pressing kernel, followed by shutdown.
 
 ### Training on 20X data
 
@@ -88,3 +103,6 @@ Launch the notebook named **Train 20X Virtual Stainer**.
 * Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
 
 Run each cell in order. 
+
+![#f03c15](**Make sure to shut down the kernel BEFORE moving on to another notebook**)
+This is done by pressing kernel, followed by shutdown.
