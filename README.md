@@ -4,7 +4,15 @@
 
 ### Launching docker
 
-Launch the docker container by running `docker run -it --rm -p 8890:8890 -v /home/group1/:/workspace/ notebooks`
+First, check if the container is already running. Run `docker ps` and look for a container with IMAGE and NAMES _notebooks_
+
+#### If the container is already running
+Attach to the container by running `docker exec -it notebooks sh`
+
+#### If the container is not running
+Launch the docker container by running `docker run -it --name notebooks --rm -p 8890:8890 -v /home/group1/:/workspace/ notebooks`
+
+
 
 ### Starting Jupyter Server
 
