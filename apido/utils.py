@@ -60,6 +60,20 @@ def save_history_as_csv(path: str, history: dict, delimiter="\t"):
 
 
 def read_csv(path, delimiter="\t"):
+    """Read apido-style csv file.
+
+    Parameters
+    ----------
+    path : str
+        path to csv file
+    delimiter : str
+        Delimination character placed between entries. Defaults to tab.
+
+    Returns
+    -------
+    dict
+        A dict of lists, where each key corresponds to one column.
+    """
     result_dict = {}
     with open(path, "r") as f:
         reader = csv.reader(f, delimiter=delimiter)
@@ -132,11 +146,27 @@ def save_training_results(
 
 
 def save_config(path, headers):
+    """Saves a config file as JSON
+
+    Parameters
+    ----------
+    path : str
+        Path to save to
+    headers : dict
+        Config dict to save
+    """
     with open(path, "w") as f:
         json.dump(headers, f, indent=2)
 
 
 def load_config(path):
+    """Loads a JSON config file
+
+    Parameters
+    ----------
+    path : str
+        Path to load from.
+    """
     with open(os.path.join(path, _config_name), "r") as f:
         res = json.load(f)
     return res
@@ -185,6 +215,17 @@ _RE_PATTERN = r"([0-9]*):([0-9]*)(?::([0-9]*)){0,1}"
 
 
 def parse_index(index: str):
+    """Converts string argument to index iterator
+
+    Accepts python style index selection, e.g. "1:4", ":3", "::2"
+    and returns an iterator over those indexes.
+
+    Parameters
+    ----------
+    index : str
+        Index-string to convert to iterator
+    """
+
     try:
         return iter([int(index)])
     except ValueError:
@@ -206,6 +247,10 @@ def parse_index(index: str):
 
 
 def get_user_name():
+    """
+    Retrieves the name of the user. Tries `getpass` and falls back to looking
+    for a user folder in the current path.
+    """
     try:
         import getpass
 
@@ -221,27 +266,20 @@ def get_user_name():
         return "unknown"
 
 
-def get_folder_from_specifier(specifier, name="**"):
-
-    path = os.path.abspath(
-        "./results/{name}/*{specifier}*/".format(name=name, specifier=specifier)
-    )
-
-    folders = glob.glob(path)
-
-    if not folders:
-        raise IOError("No path matching glob {0} found.".format(path))
-    if len(folders) > 1:
-        raise ValueError(
-            "Non-unique glob specifier {0}. Couldn't separate between: {1}".format(
-                path, ", ".join(folders)
-            )
-        )
-
-    return folders[0]
-
-
 def load_model(folder):
+    """Loads a model from path.
+
+    The path needs to contain at least a folder named `generator_checkpoint`.
+    It may optionaly also include floders `lipids`, `nuclei` or `cytoplasm`,
+    each of which contain a folder `generator_checkpoint`. If this is the case,
+    these models will serve as stage 2 models.
+
+    Parameters
+    ----------
+    folder : str
+        Path to model
+
+    """
     import warnings
 
     warnings.filterwarnings("ignore")
