@@ -28,8 +28,8 @@ If prompted, enter the key shown by jupyter notebook on the host.
 
 Launch the notebook named **Stain 60X Data**.
 
-* Set `DATASET_PATH` to the path containing the 60X input images
-* Set `OUTPUT_PATH` to the desired output path (can be the same as `DATASET_PATH`)
+* Set `DATASET_PATH` in section 1.2 to the path containing the 60X input images
+* Set `OUTPUT_PATH` in section 1.2 to the desired output path (can be the same as `DATASET_PATH`)
 
 Run each cell in order. Under section **4**, cell 14, the execution time of the model is shown.
 
