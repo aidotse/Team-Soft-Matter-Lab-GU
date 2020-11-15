@@ -1,5 +1,19 @@
 # Adipocyte Cell Challenge
 
+## Expected folder structure for models
+
+Before starting, make sure the folder structure for models matches the following:
+
+    Team-Soft-Matter-Lab-GU/
+    . . models/
+    . . . . 20x/
+    . . . . ...
+    . . . . 40x/
+    . . . . ...
+    . . . . 60x/
+    . . . . ...
+    
+
 ## Instructions for staining
 
 Move into the Team-Soft-Matter-Lab directory.
@@ -35,11 +49,11 @@ http://127.0.0.1:{port}/?token={key}
 
 You may need to scroll up to see it.
 
-Copy that address, remove `http://`, replace 127.0.0.1 with 10.80.4.52, and paste it into a web browser on the local computer.
+Copy that address, replacing 127.0.0.1 with 10.80.4.52, and paste it into a web browser on the local computer.
 
 An example url would be:
 
-10.80.4.52:8890/?token=abcdefghijklmnopqrst0123456789abcdefghijklmnopqr
+http://10.80.4.52:8890/?token=abcdefghijklmnopqrst0123456789abcdefghijklmnopqr
 
 ### Predicting on 60X data
 
